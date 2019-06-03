@@ -1,6 +1,17 @@
 """
 ada v2.3.3.py
 
+x.y.z
+
+Where:
+
+    x = main version number, 1-~.
+    y = feature number, 0-9. Increase this number if the change contains new features with or without bug fixes.
+    z = hotfix number, 0-~. Increase this number if the change only contains bug fixes. z could be date-time.
+
+    x.y revz
+
+
 Richard E. Rawson
 2019-05-28
 
