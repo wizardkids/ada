@@ -45,6 +45,7 @@ change log:
     v 2.3.3
         -- add a config.json file that holds settings session to session
         -- add a "beginner's" user-tip, via a setting in {settings} that is not accessible to the user
+
 """
 
 import json
@@ -75,13 +76,19 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
             print_tape(stack, tape)
 
         # print the register
-        stack, settings = print_register(stack, settings)
+        stack = print_register(stack)
 
         # generate the menu
         print()
         for i in range(0, len(menu), 4):
             m = ''.join(menu[i:i+4])
             print(m)
+
+        # print user tip, optionally
+        if settings['show_tips'] == 'Y':
+            print('\nType:\n     basics\nto get started with RPN.')
+            # only show tip once
+            settings['show_tips'] = 'N'
 
         # get the command line entry from the user
         entered_value = input('\n').lstrip().rstrip()
@@ -383,7 +390,7 @@ def parse_entry(stack, entered_value):
     return stack, entered_list
 
 
-def print_register(stack, settings):
+def print_register(stack):
     """
     Display the stack register.
     """
@@ -426,12 +433,7 @@ def print_register(stack, settings):
         print(stack_names[register], ':',
               ('{:>' + str(p) + '}').format(fs), sep='')
 
-    # print user tip
-    if settings['show_tips'] == 'Y':
-        print('\nType:\n\n     basics\n\nto get started with RPN.')
-        # only show tip once
-        settings['show_tips'] = 'N'
-    return stack, settings
+    return stack
 
 #  IMPORT FILE FUNCTIONS ====================
 
@@ -498,11 +500,11 @@ def print_commands(stack):
     """
     List all available commands, including those that manipulate the stack. To get a list of math operators, shortcuts, or constants, type:
 
-math
+math --> (math operators)
 
-short
+short --> (shortcuts)
 
-con
+con --> (built-in constants)
     """
     # print all the keys in {shortcuts}
     txt, line_width = ' COMMANDS ', 56
@@ -522,11 +524,11 @@ def print_math_ops(stack):
     """
     List all math operations. to get a list of commands, shortcuts, or constants, type:
 
-com
+com --> (commandsd)
 
-short
+short --> (shortcuts)
 
-con
+con --> (built-in constants)
     """
     # print all the keys, values in {op1} and {op2}
     txt, line_width = ' MATH OPERATIONS ', 56
@@ -549,11 +551,11 @@ def print_shortcuts(stack):
     """
     List shortcuts to math functions. To get a list of commands, math operations, or constants, type:
 
-com
+com --> (commands)
 
-math
+math --> (math operators)
 
-con
+con --> (built-in constants)
     """
     # print all the keys, values in {shortcuts}
     txt, line_width = ' SHORTCUTS ', 56
@@ -2166,7 +2168,7 @@ You can also group items using parentheses. Example:
     (145 5+)(111 20+) - 
 
 The result of the first group is placed on the stack in x:. Then it is moved to y: when the second group is placed in x:. Then the minus operator subtracts x: from y:. This type of operation is where the real power of RPN is realized. 
-=================================================="""
+============================================="""
         
     print('\n'.join([fold(txt) for txt in txt.splitlines()]))
 
@@ -2219,7 +2221,7 @@ Besides the stack, ada provides three other features of interest.
 3. Conversion between RGB and hex colors, including alpha values. [related commands: alpha, rgb, and hex]
 
 There's more! Explore the index and h [command] function to see more of ada's capabilities.
-=================================================="""
+============================================="""
 
     print('\n'.join([fold(txt) for txt in txt.splitlines()]))
 
