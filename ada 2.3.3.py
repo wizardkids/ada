@@ -1,5 +1,5 @@
 """
-ada v2.3.2.py
+ada v2.3.3.py
 
 Richard E. Rawson
 2019-05-28
@@ -42,6 +42,9 @@ change log:
         -- add the ability to delete one or all memory registers
         -- various bug fixes
 
+    v 2.3.3
+        -- add a config.json file that holds settings session to session
+        -- add a "beginner's" user-tip, via a setting in {settings} that is not accessible to the user
 """
 
 import json
@@ -862,7 +865,7 @@ def about(stack):
     """
     print('='*45)
     
-    txt1 = 'ada - an RPN calculator\n'+ 'version: 2.3.2\n' + \
+    txt1 = 'ada - an RPN calculator\n'+ 'version: 2.3.3\n' + \
           ' python: 3.7\n' + '   date: 2019-05-27\n\n'
 
     txt2 = 'ada is named after Ada Lovelace (1815–1852), whose achievements included developing an algorithm showing how to calculate a sequence of numbers, forming the basis for the design of the modern computer. It was the first algorithm created expressly for a machine to perform.'
@@ -2271,7 +2274,7 @@ Example:
 
 if __name__ == '__main__':
 
-    print('ada - an RPN calculator v2.3.2')
+    print('ada - an RPN calculator v2.3.3')
 
     # initialize the x, y, z, and t registers, and other global variables
     stack, entered_value = [0.0], 0.0
