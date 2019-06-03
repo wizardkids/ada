@@ -1,29 +1,8 @@
 """
-ada v2.3.3.py
-
-x.y.z
-
-Where:
-
-    x = main version number, 1-~.
-    y = feature number, 0-9. Increase this number if the change contains new features with or without bug fixes.
-    z = hotfix number, 0-~. Increase this number if the change only contains bug fixes. z could be date-time.
-
-    x.y revz
-
-
+ada.py
 Richard E. Rawson
-2019-05-28
 
 Command line RPN calculator that performs a variety of common functions.
-
-NOTE:
-1. version number appears in three places:
-    -- header
-    -- about()
-    -- as a global variable below if __name__ == '__main__'
-
-2. Some functions display the dictionaries (at the end of this file) to provide lists of available functions accessible to the user, along with a snippet of information for each command. Many of the docStrings in this file are also accessible (via "help") as a means of providing extended information about each command.
 
 
 change log:
@@ -57,6 +36,14 @@ change log:
         -- add a config.json file that holds settings session to session
         -- add a "beginner's" user-tip, via a setting in {settings} that is not accessible to the user
 
+    rev 2019-06-03 07:42 PM
+        -- changed file naming and versioning
+        -- file name: ada.py
+        -- versioning: x.y z
+            Where:
+                x = main version number
+                y = feature number, 0-9. Increase this number if the change contains new features with or without bug fixes.
+                z = revision datetime
 """
 
 import json
@@ -878,7 +865,7 @@ def about(stack):
     """
     print('='*45)
     
-    txt1 = 'ada - an RPN calculator\n'+ 'version: 2.3.3\n' + \
+    txt1 = 'ada - an RPN calculator\n'+ 'version: ' + version_num[0:18] + '\n' + \
           ' python: 3.7\n' + '   date: 2019-05-27\n\n'
 
     txt2 = 'ada is named after Ada Lovelace (1815–1852), whose achievements included developing an algorithm showing how to calculate a sequence of numbers, forming the basis for the design of the modern computer. It was the first algorithm created expressly for a machine to perform.'
@@ -886,6 +873,16 @@ def about(stack):
     print('\n'.join([fold(txt1) for txt1 in txt1.splitlines()]))
     print('\n'.join([fold(txt2) for txt2 in txt2.splitlines()]))
 
+    print('='*45)
+    return stack
+
+
+def version(stack):
+    """
+    Report the version number as a string.
+    """
+    print('='*45)
+    print(version_num[0:18])
     print('='*45)
     return stack
 
@@ -2287,7 +2284,9 @@ Example:
 
 if __name__ == '__main__':
 
-    print('ada - an RPN calculator v2.3.3')
+    version_num = '2.3 rev2019-06-03 07:42 PM'
+
+    print('ada - an RPN calculator ' + version_num[0:3])
 
     # initialize the x, y, z, and t registers, and other global variables
     stack, entered_value = [0.0], 0.0
@@ -2375,6 +2374,7 @@ if __name__ == '__main__':
         "about": (about, "Info about the author and product."),
         "import": (get_file_data, "Import data from a text file."),
         'set': (calculator_settings, 'Access and edit settings.'),
+        'version': (version, 'Report the version number as a string.'),
         "     ": ('', ''),
         " ====": ('', '==== COLOR ============================='),
         'alpha': (get_hex_alpha, 'Hex equivalent of RGB alpha value.'),
