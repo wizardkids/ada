@@ -56,6 +56,8 @@ from inspect import getmembers, isfunction
 from string import ascii_letters, ascii_lowercase, ascii_uppercase, digits
 from sys import modules
 
+# todo -- thoroughly test all fxns
+
 
 # MAIN CALCULATOR FUNCTION ====================
 
