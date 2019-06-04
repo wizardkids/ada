@@ -1,0 +1,41 @@
+change log: ada.py
+
+v 1.9
+    -- organize (and bookmark) functions into categories
+
+v 2.1
+    -- add memory stack functions
+    -- add {mem} as a global dictionary
+    -- add M+, M-, MR, and ML to {commands}, matching docString todescription in {commands}
+    -- add {mem} to function arguments for RPN() and process_item() 
+    -- add ability to access memory stack in process_items()
+    -- now accepts only lower case commands, except for F, C, M+, M-, MR,and ML
+    -- fixed order or arguments in stack = temperature_conversion(item,stack) to stack = temperature_conversion(stack, item)
+    -- reverse order of commands and math operations in print_user_function()
+    -- add an interactive help
+    -- a multitude of fixes
+
+v 2.2
+    -- add capability to save to and retrieve mathematical expressions fromconstants.json. Once retrieved, the expression is executed and theresult placed on the stack.
+
+v 2.3.1
+    -- add ability to import a text file containing numbers
+    -- change "man" to "index," since this command generates a list ofcommands and isn't really a manual.
+    -- various bug fixes and numerous improvements to help
+
+v 2.3.2
+    -- add the ability to delete one or all memory registers
+    -- various bug fixes
+
+v 2.3.3
+    -- add a config.json file that holds settings session to session
+    -- add a "beginner's" user-tip, via a setting in {settings} that is notaccessible to the user
+
+rev 2019-06-03 07:42 PM
+    -- changed file naming and versioning
+    -- file name: ada.py
+    -- versioning: x.y z
+        Where:
+            x = main version number
+            y = feature number, 0-9. Increase this number if the changecontains new features with or without bug fixes.
+            z = revision datetime
