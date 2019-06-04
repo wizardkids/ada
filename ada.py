@@ -1,18 +1,8 @@
 """
-ada v2.3.2.py
-
+ada.py
 Richard E. Rawson
-2019-05-28
 
 Command line RPN calculator that performs a variety of common functions.
-
-NOTE:
-1. version number appears in three places:
-    -- header
-    -- about()
-    -- as a global variable below if __name__ == '__main__'
-
-2. Some functions display the dictionaries (at the end of this file) to provide lists of available functions accessible to the user, along with a snippet of information for each command. Many of the docStrings in this file are also accessible (via "help") as a means of providing extended information about each command.
 
 
 change log:
@@ -42,6 +32,18 @@ change log:
         -- add the ability to delete one or all memory registers
         -- various bug fixes
 
+    v 2.3.3
+        -- add a config.json file that holds settings session to session
+        -- add a "beginner's" user-tip, via a setting in {settings} that is not accessible to the user
+
+    rev 2019-06-03 07:42 PM
+        -- changed file naming and versioning
+        -- file name: ada.py
+        -- versioning: x.y z
+            Where:
+                x = main version number
+                y = feature number, 0-9. Increase this number if the change contains new features with or without bug fixes.
+                z = revision datetime
 """
 
 import json
@@ -53,8 +55,6 @@ import textwrap
 from inspect import getmembers, isfunction
 from string import ascii_letters, ascii_lowercase, ascii_uppercase, digits
 from sys import modules
-
-# todo -- thoroughly test all fxns
 
 
 # MAIN CALCULATOR FUNCTION ====================
@@ -72,13 +72,19 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
             print_tape(stack, tape)
 
         # print the register
-        stack, settings = print_register(stack, settings)
+        stack = print_register(stack)
 
         # generate the menu
         print()
         for i in range(0, len(menu), 4):
             m = ''.join(menu[i:i+4])
             print(m)
+
+        # print user tip, optionally
+        if settings['show_tips'] == 'Y':
+            print('\nType:\n     basics\nto get started with RPN.')
+            # only show tip once
+            settings['show_tips'] = 'N'
 
         # get the command line entry from the user
         entered_value = input('\n').lstrip().rstrip()
@@ -380,7 +386,7 @@ def parse_entry(stack, entered_value):
     return stack, entered_list
 
 
-def print_register(stack, settings):
+def print_register(stack):
     """
     Display the stack register.
     """
@@ -423,12 +429,7 @@ def print_register(stack, settings):
         print(stack_names[register], ':',
               ('{:>' + str(p) + '}').format(fs), sep='')
 
-    # print user tip
-    if settings['show_tips'] == 'Y':
-        print('\nType:\n\n     basics\n\nto get started with RPN.')
-        # only show tip once
-        settings['show_tips'] = 'N'
-    return stack, settings
+    return stack
 
 #  IMPORT FILE FUNCTIONS ====================
 
@@ -495,11 +496,11 @@ def print_commands(stack):
     """
     List all available commands, including those that manipulate the stack. To get a list of math operators, shortcuts, or constants, type:
 
-math
+math --> (math operators)
 
-short
+short --> (shortcuts)
 
-con
+con --> (built-in constants)
     """
     # print all the keys in {shortcuts}
     txt, line_width = ' COMMANDS ', 56
@@ -519,11 +520,11 @@ def print_math_ops(stack):
     """
     List all math operations. to get a list of commands, shortcuts, or constants, type:
 
-com
+com --> (commandsd)
 
-short
+short --> (shortcuts)
 
-con
+con --> (built-in constants)
     """
     # print all the keys, values in {op1} and {op2}
     txt, line_width = ' MATH OPERATIONS ', 56
@@ -546,11 +547,11 @@ def print_shortcuts(stack):
     """
     List shortcuts to math functions. To get a list of commands, math operations, or constants, type:
 
-com
+com --> (commands)
 
-math
+math --> (math operators)
 
-con
+con --> (built-in constants)
     """
     # print all the keys, values in {shortcuts}
     txt, line_width = ' SHORTCUTS ', 56
@@ -862,7 +863,7 @@ def about(stack):
     """
     print('='*45)
     
-    txt1 = 'ada - an RPN calculator\n'+ 'version: 2.3.2\n' + \
+    txt1 = 'ada - an RPN calculator\n'+ 'version: ' + version_num[0:18] + '\n' + \
           ' python: 3.7\n' + '   date: 2019-05-27\n\n'
 
     txt2 = 'ada is named after Ada Lovelace (1815–1852), whose achievements included developing an algorithm showing how to calculate a sequence of numbers, forming the basis for the design of the modern computer. It was the first algorithm created expressly for a machine to perform.'
@@ -870,6 +871,16 @@ def about(stack):
     print('\n'.join([fold(txt1) for txt1 in txt1.splitlines()]))
     print('\n'.join([fold(txt2) for txt2 in txt2.splitlines()]))
 
+    print('='*45)
+    return stack
+
+
+def version(stack):
+    """
+    Report the version number as a string.
+    """
+    print('='*45)
+    print(version_num[0:18])
     print('='*45)
     return stack
 
@@ -2163,7 +2174,7 @@ You can also group items using parentheses. Example:
     (145 5+)(111 20+) - 
 
 The result of the first group is placed on the stack in x:. Then it is moved to y: when the second group is placed in x:. Then the minus operator subtracts x: from y:. This type of operation is where the real power of RPN is realized. 
-=================================================="""
+============================================="""
         
     print('\n'.join([fold(txt) for txt in txt.splitlines()]))
 
@@ -2216,7 +2227,7 @@ Besides the stack, ada provides three other features of interest.
 3. Conversion between RGB and hex colors, including alpha values. [related commands: alpha, rgb, and hex]
 
 There's more! Explore the index and h [command] function to see more of ada's capabilities.
-=================================================="""
+============================================="""
 
     print('\n'.join([fold(txt) for txt in txt.splitlines()]))
 
@@ -2271,7 +2282,9 @@ Example:
 
 if __name__ == '__main__':
 
-    print('ada - an RPN calculator v2.3.2')
+    version_num = '2.3 rev2019-06-03 07:42 PM'
+
+    print('ada - an RPN calculator ' + version_num[0:3])
 
     # initialize the x, y, z, and t registers, and other global variables
     stack, entered_value = [0.0], 0.0
@@ -2359,6 +2372,7 @@ if __name__ == '__main__':
         "about": (about, "Info about the author and product."),
         "import": (get_file_data, "Import data from a text file."),
         'set': (calculator_settings, 'Access and edit settings.'),
+        'version': (version, 'Report the version number as a string.'),
         "     ": ('', ''),
         " ====": ('', '==== COLOR ============================='),
         'alpha': (get_hex_alpha, 'Hex equivalent of RGB alpha value.'),
