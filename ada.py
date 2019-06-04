@@ -4,46 +4,6 @@ Richard E. Rawson
 
 Command line RPN calculator that performs a variety of common functions.
 
-
-change log:
-    v 1.9
-        -- organize (and bookmark) functions into categories
-    v 2.1
-        -- add memory stack functions
-        -- add {mem} as a global dictionary
-        -- add M+, M-, MR, and ML to {commands}, matching docString to description in {commands}
-        -- add {mem} to function arguments for RPN() and process_item() 
-        -- add ability to access memory stack in process_items()
-        -- now accepts only lower case commands, except for F, C, M+, M-, MR, and ML
-        -- fixed order or arguments in stack = temperature_conversion(item, stack) to stack = temperature_conversion(stack, item)
-        -- reverse order of commands and math operations in print_user_functions()
-        -- add an interactive help
-        -- a multitude of fixes
-
-    v 2.2
-        -- add capability to save to and retrieve mathematical expressions from constants.json. Once retrieved, the expression is executed and the result placed on the stack.
-    
-    v 2.3.1
-        -- add ability to import a text file containing numbers
-        -- change "man" to "index," since this command generates a list of commands and isn't really a manual.
-        -- various bug fixes and numerous improvements to help
-
-    v 2.3.2
-        -- add the ability to delete one or all memory registers
-        -- various bug fixes
-
-    v 2.3.3
-        -- add a config.json file that holds settings session to session
-        -- add a "beginner's" user-tip, via a setting in {settings} that is not accessible to the user
-
-    rev 2019-06-03 07:42 PM
-        -- changed file naming and versioning
-        -- file name: ada.py
-        -- versioning: x.y z
-            Where:
-                x = main version number
-                y = feature number, 0-9. Increase this number if the change contains new features with or without bug fixes.
-                z = revision datetime
 """
 
 import json
@@ -55,8 +15,6 @@ import textwrap
 from inspect import getmembers, isfunction
 from string import ascii_letters, ascii_lowercase, ascii_uppercase, digits
 from sys import modules
-
-# todo -- thoroughly test all fxns
 
 
 # MAIN CALCULATOR FUNCTION ====================
@@ -498,11 +456,11 @@ def print_commands(stack):
     """
     List all available commands, including those that manipulate the stack. To get a list of math operators, shortcuts, or constants, type:
 
-math --> (math operators)
+    math --> (math operators)
 
-short --> (shortcuts)
+    short --> (shortcuts)
 
-con --> (built-in constants)
+    con --> (built-in constants)
     """
     # print all the keys in {shortcuts}
     txt, line_width = ' COMMANDS ', 56
@@ -522,11 +480,11 @@ def print_math_ops(stack):
     """
     List all math operations. to get a list of commands, shortcuts, or constants, type:
 
-com --> (commandsd)
+    com --> (commandsd)
 
-short --> (shortcuts)
+    short --> (shortcuts)
 
-con --> (built-in constants)
+    con --> (built-in constants)
     """
     # print all the keys, values in {op1} and {op2}
     txt, line_width = ' MATH OPERATIONS ', 56
@@ -549,11 +507,11 @@ def print_shortcuts(stack):
     """
     List shortcuts to math functions. To get a list of commands, math operations, or constants, type:
 
-com --> (commands)
+    com --> (commands)
 
-math --> (math operators)
+    math --> (math operators)
 
-con --> (built-in constants)
+    con --> (built-in constants)
     """
     # print all the keys, values in {shortcuts}
     txt, line_width = ' SHORTCUTS ', 56
@@ -574,7 +532,7 @@ def print_constants(stack):
 
 Note: This list does not include user-defined constants. That list is accessed by typing:
 
-usercon
+    usercon
     """
     # print all the keys, values in {constants}
     txt, line_width = ' CONSTANTS & CONVERSIONS ', 56
@@ -591,26 +549,22 @@ usercon
 
 def print_dict(stack):
     """
-    List user-defined constants and expressions, if they exist. 
+    List user-defined constants and expressions. 
     
-To use a user-define constant, type its name to put the value of the constant on the stack.
+(1) To use a user-define constant, type its name to put the value of the constant on the stack.
 
-To use (execute) a user-defined expression, type:
+(2) To use (execute) a user-defined expression, type:
 
     ue [expression name] or userexpr [expression name]
     
-Type:
+
+Related commands:
     
-    usercon
+    usercon --> to list the current user-defined constants. 
 
-to list the current user-defined constants. 
+    h ue --> for help on entering expressions, including the use of register names (e.g., x:, y:) in expressions.
 
-Type:
-
-    h ue
-
-for help on entering expressions, including the use of register names (e.g., x:, y:) in expressions.
-
+    user --> to create user-defined (named) constants and expressions
     """
     # print all the keys, values in {user_dict}
     try:
@@ -1233,7 +1187,7 @@ Note: the x: value remains on the stack.
 
 def define_constant(stack, user_dict):
     """
-    Define, edit, or delete a user-defined constant. Constants are saved to file and are retrieved automatically when the calculator starts. Names must be lower case and cannot contain spaces. You cannot redefine system names (e.g., "swap"). Two types of constants can be saved:
+    Define, edit, or delete a user-defined constant or expression. Once defined, constants/expressions are saved to file and retrieved automatically when the calculator starts. Names must be lower case and cannot contain spaces. You cannot redefine system names (e.g., "swap"). Two types of constants can be saved:
 
 (1) Numerical constants. These are numbers.
 
@@ -1430,11 +1384,11 @@ Put any two values on the stack, and run the expression using:
 
     ue mid
 
-An easy way to get the expression: use the command line to do what you need, then copy the steps from the tape. Format into one line and then paste when you create the user-defined expression using:
+An easy way to get the expression: use the command line to do what you need, then copy the steps from the tape. Format into one line, if needed, and then paste in the VALUE field when you create the user-defined expression using:
 
     user
 
-(2) Memory registers can act as variables, and may be better suited for complicated expressions. See help for M+, M-, MR, and ML.
+(2) Memory registers can act as variables, and may be better suited for some complicated expressions. See help for M+, M-, MR, and ML.
     """
     try:
         with open("constants.json") as file:
@@ -2147,13 +2101,18 @@ def basics(stack):
     """
     txt = """
 ============= HELP: RPN BASICS ==============
-An RPN calculator has no <ENTER> key. Rather, numbers are placed on a "stack" and then an operation is invoked to act on the stack values. The result of the operation is placed back on the stack.
+An RPN calculator has no "equals" < = > key. Rather, numbers are placed on a "stack" and then an operation is invoked to act on the stack values. The result of the operation is placed back on the stack.
             
 EXAMPLE:
                 
 Type: 
     
     3 <enter>      4 <enter>
+
+Result:
+
+    y:          3.0000
+    x:          4.0000
             
 When 3 is entered, it goes to the x: register. Then, when 4 is entered, 3 is moved to the y: register and 4 is placed in the x: register. Now, you can do anything you want with those two numbers. Let's add them.
             
@@ -2167,15 +2126,36 @@ The speed of RPN is realized when entering expressions:
             
 Type: 
 
-    3 4 +
+    3 4 dup + +
             
-ada parses the whole expression at once to give the same result: x: 7
+ada parses the whole expression at once. After "dup", the stack looks like this:
 
-You can also group items using parentheses. Example: 
+    t:          0.0000
+    z:          3.0000
+    y:          4.0000
+    x:          4.0000
 
-    (145 5+)(111 20+) - 
+The first + adds y: and x: 
 
-The result of the first group is placed on the stack in x:. Then it is moved to y: when the second group is placed in x:. Then the minus operator subtracts x: from y:. This type of operation is where the real power of RPN is realized. 
+    t:          0.0000
+    z:          0.0000
+    y:          3.0000
+    x:          8.0000
+
+The second + adds y: and the new x:
+
+    t:          0.0000
+    z:          0.0000
+    y:          0.0000
+    x:         11.0000
+
+You can also group items using parentheses (nested groups are allowed!). 
+
+Example: 
+
+    (145 5+)(111 20+) * 
+
+Parentheses make sure that operations are applied as you intend. The result of the first group is placed on the stack in x:. Then it is moved to y: when the second group is executed and placed in x:. Then the multiplication operator multiplies x: and y:. This type of operation is where the real power of RPN is realized. 
 ============================================="""
         
     print('\n'.join([fold(txt) for txt in txt.splitlines()]))
@@ -2199,18 +2179,19 @@ or more detailed information by typing:
 
 where [command] is any command in the lists of commands, operations, and shortcuts. All of the common calculator operations are available, either as shortcuts or commands.
 
-Numbers entered in a sequence MUST be separated by spaces, for obvious reasons. A single shortcut can follow a number directly, but sequences of shortcuts or operations using words must use spaces. For example, put the following numbers on the stack:
+Numbers entered in a sequence MUST be separated by spaces, for obvious reasons. A single shortcut can follow a number directly, but sequences of shortcuts or operations using words must use spaces. For examples of valid and invalid expressions, put the following numbers on the stack:
 
-    z: 4
-    y: 7
-    x: 3
+    t:          0.0000
+    z:          4.0000
+    y:          7.0000
+    x:          3.0000
 
-We want to drop 3, swap 4 and 7, then get the square root of 4, to yield the result: 2.0. Expressions (1) and (2) are valid, but expressions (3) and (4) will yield an unexpected result.
+We want to drop 3, swap 4 and 7, then get the square root of the x: register (4), to yield the result: 2.0. Valid and invalid expressions:
 
-    (1) 4 7 3 d s sqrt
-    (2) 4 7 3d s sqrt
-    (3) 4 7 3ds sqrt
-    (4) 4 7 3 dssqrt
+    (1) 4 7 3 d s sqrt (valid)
+    (2) 4 7 3d s sqrt  (valid)
+    (3) 4 7 3ds sqrt   (invalid)
+    (4) 4 7 3 dssqrt   (invalid)
 
 Except for functions related to the memory registers (M+, MR, etc.), commands/operators use lower case only. Not having to use the <shift> key increases speed of entry.
 
@@ -2218,17 +2199,21 @@ ada keeps track of expressions you use, and these can be displayed by typing:
 
     tape
 
-The tape provides a running list of expressions entered during the current session. You can use the up and down arrow keys to cycle through items you have entered.
+The tape provides a running list of expressions entered during the current session. You can use the up and down arrow keys to cycle through items you have entered. Optionally, the tape can be displayed after every operation through "settings".
 
-Besides the stack, ada provides three other features of interest. 
+Besides the stack, ada provides three other features of interest. Type:
 
-1. Memory register, where you can store, add, subtract, and recall numbers. Access these registers by their number. [related commands: M+, M-, MR, and ML]
+    h [related commands]
 
-2. User-defined constants, where you can store constants by name. These are saved between sessions. Put a constant's value on the stack by typing its name. [related commands: user and usercon]
+for more detailed information.
+
+1. Memory register, where you can store, add, subtract, and recall numbers. Access these registers by their number. [related commands: M+, M-, MR, MD, and ML]
+
+2. User-defined constants, where you can store constants, or even whole expressions, by name. These are saved between sessions. [related commands: user, usercon, ue, userexpr]
 
 3. Conversion between RGB and hex colors, including alpha values. [related commands: alpha, rgb, and hex]
 
-There's more! Explore the index and h [command] function to see more of ada's capabilities.
+There's more! Explore the index and h [command] to see more of ada's capabilities.
 ============================================="""
 
     print('\n'.join([fold(txt) for txt in txt.splitlines()]))
