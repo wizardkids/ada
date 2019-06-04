@@ -2469,7 +2469,6 @@ if __name__ == '__main__':
         '0': '00'
         }
 
-
     # when calculator starts, read constants.json if it exists
     # this way, the user has access to user-defined constants without
     # having to do anything special
