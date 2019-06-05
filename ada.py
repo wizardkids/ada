@@ -6,6 +6,15 @@ Command line RPN calculator that performs a variety of common functions.
 
 """
 
+# todo -- add dec to hex and hex to dec fxns
+
+# todo -- modify readme.md in master:
+    #  * -- change SAS to SAS/STAT
+    # * -- make the point about the objective of ada being speed of startup and speed of expression entry and speed of execution
+    # * -- Give an example of the latter
+        # * --  4 16 s 2 ^ 4 / /
+        # * -- with no more than single keys, and typing a single expression, ada executes the line to result in x: 4
+
 import json
 import math
 import operator
@@ -1170,7 +1179,7 @@ Example:
 
 def convert_to_binary(stack):
     """
-    Convert x: to binary. Binary value is a sting so it is reported as a string, and not placed on the stack.
+    Convert x: from decimal to binary. Binary value is a sting so it is reported as a string, and not placed on the stack.
     
 Example:
     8 bin --> "0b1000"
@@ -2329,7 +2338,7 @@ if __name__ == '__main__':
         "rad": (rad, "convert angle x in degrees to radians"),
         "  ": ('', ''),
         "  ====": ('', '==== CONVERSIONS ======================='),
-        'bin': (convert_to_binary, 'Convert x to binary'),
+        'bin': (convert_to_binary, 'Convert x from decimal to binary.'),
         "dec": (convert_to_decimal, 'Convert x from binary to decimal.'),
         'cm': (cm, 'Convert inches to centimeters.'),
         'inch': (inch, 'Convert centimeters to inches.'),
