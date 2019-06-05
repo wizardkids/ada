@@ -6,16 +6,6 @@ Command line RPN calculator that performs a variety of common functions.
 
 """
 
-# // -- add dec to hex and hex to dec fxns
-# todo -- code the dechex() and hexdec() functions
-
-# todo -- modify readme.md in master:
-    #  * -- change SAS to SAS/STAT
-    # * -- make the point about the objective of ada being speed of startup and speed of expression entry and speed of execution
-    # * -- Give an example of the latter
-        # * --  4 16 s 2 ^ 4 / /
-        # * -- with no more than single keys, and typing a single expression, ada executes the line to result in x: 4
-
 import json
 import math
 import operator
