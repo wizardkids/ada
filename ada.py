@@ -6,7 +6,8 @@ Command line RPN calculator that performs a variety of common functions.
 
 """
 
-# todo -- add dec to hex and hex to dec fxns
+# // -- add dec to hex and hex to dec fxns
+# todo -- code the dechex() and hexdec() functions
 
 # todo -- modify readme.md in master:
     #  * -- change SAS to SAS/STAT
@@ -1191,6 +1192,26 @@ Note: the x: value remains on the stack.
     print('='*45)
     return stack
 
+
+def convert_dec_hex(stack):
+    """
+    Convert x: from decimal to hexadecimal. Hexadecimal number is a string, so it is reported as a string, and not placed on the stack.
+
+THIS FUNCTION IS CURRENTLY NOT IN PLACE.
+    """
+    pass
+    return stack
+
+
+def convert_hex_dec(stack):
+    """
+    Convert x: from hexadecimal to decimal. 
+
+THIS FUNCTION IS CURRENTLY NOT IN PLACE.
+    """
+    pass
+    return stack
+
 # === USER-DEFINED CONSTANTS FUNCTIONS ====
 
 
@@ -2340,6 +2361,8 @@ if __name__ == '__main__':
         "  ====": ('', '==== CONVERSIONS ======================='),
         'bin': (convert_to_binary, 'Convert x from decimal to binary.'),
         "dec": (convert_to_decimal, 'Convert x from binary to decimal.'),
+        "dechex": (convert_dec_hex, 'Convert x from decimal to hex.'),
+        "hexdec": (convert_hex_dec, 'Convert x from hex to decimal.'),
         'cm': (cm, 'Convert inches to centimeters.'),
         'inch': (inch, 'Convert centimeters to inches.'),
         'cf': (ctof, 'Convert centigrade to Fahrenheit.'),
