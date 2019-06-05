@@ -1,5 +1,5 @@
 """
-ada.py -- in feature branch
+ada.py
 Richard E. Rawson
 
 Command line RPN calculator that performs a variety of common functions.
