@@ -1,6 +1,6 @@
 ada - a command-line RPN calculator
 
-Why a command-line calculator? ...because keyboard entry is so much faster than pointing and clicking or tapping buttons on a screen. 
+Why a command-line calculator? ...because keyboard entry is so much faster than pointing and clicking or tapping buttons on a screen.
 
 Why RPN? ...because hitting an equals key is so 1995 and RPN is demonstrably faster than a conventional calculator.
 
