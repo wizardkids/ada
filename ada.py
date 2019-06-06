@@ -10,7 +10,8 @@ Command line RPN calculator that performs a variety of common functions.
 # ? https://nvie.com/posts/a-successful-git-branching-model/
 
 # // -- add dec to hex and hex to dec fxns
-# todo -- code the dechex() and hexdec() functions
+# // -- code the dechex() function
+# todo -- code the hexdec() functions
 
 # todo -- modify readme.md in master:
     # * -- change SAS to SAS/STAT
@@ -1200,9 +1201,42 @@ def convert_dec_hex(stack):
     """
     Convert x: from decimal to hexadecimal. Hexadecimal number is a string, so it is reported as a string, and not placed on the stack.
 
-THIS FUNCTION IS CURRENTLY NOT IN PLACE.
+
+    Divide the decimal number by 16.   Treat the division as an integer division.  
+    Write down the remainder (in hexadecimal).
+    Divide the result again by 16.  Treat the division as an integer division.  
+    Repeat step 2 and 3 until result is 0.
+    The hex value is the digit sequence of the remainders from the last to first.
+
     """
-    pass
+    hex_dict = {
+            '0':'0', '1':'1', '2':'2', '3':'3', '4':'4', '5':'5',
+            '6':'6', '7':'7', '8':'8', '9':'9', '10':'A',
+            '11':'B', '12':'C', '13':'D', '14':'E', '15':'F'
+            }
+    result = 1
+    hex_value = ''
+    cnt = 0
+    while True:
+        stack[0] = stack[0] / 16
+        stack = split_number(stack)
+        result = int(stack[0] * 16)
+        if stack[0] == 0 and stack[1] == 0: 
+            break
+        result = hex_dict[str(result)]
+        hex_value += result
+        stack.pop(0)
+        cnt += 1
+    
+    # a decimal value of zero, won't be caught by the while loop, so...
+    if cnt == 0:
+        hex_value = '0'
+    hex_value = hex_value[::-1]
+
+    print('='*45)
+    print(hex_value)
+    print('='*45)
+
     return stack
 
 
