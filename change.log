@@ -39,3 +39,9 @@ rev 2019-06-03 07:42 PM
             x = main version number
             y = feature number, 0-9. Increase this number if the changecontains new features with or without bug fixes.
             z = revision datetime
+        
+rev 2019-06-06
+    -- change all dec/hex/bin function names to be consistent with each other
+    -- add coding for convert_hex_to_dec and convert_dec_to_hex
+    add readme.md
+    -- minor bug fixes
