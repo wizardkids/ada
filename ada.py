@@ -112,7 +112,7 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
         
          # if entered_value is a hexadecimal value, beginning wiht '0x'
         elif entered_value[0:2].lower() == '0x':
-            stack = convert_hex_dec(stack, entered_value[2:])
+            stack = convert_hex_to_dec(stack, entered_value[2:])
         
         # otherwise, we're going to have to parse what the user entered
         else:
