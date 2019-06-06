@@ -9,13 +9,6 @@ Command line RPN calculator that performs a variety of common functions.
 # ! Best info on GIT branching strategy:
 # ? https://nvie.com/posts/a-successful-git-branching-model/
 
-# todo -- modify readme.md in master:
-    # * -- change SAS to SAS/STAT
-    # * -- make the point about the objective of ada being speed of startup and speed of expression entry and speed of execution
-    # * -- Give an example of the latter
-        # * --  4 16 s 2 ^ 4 / /
-        # * -- with no more than single keys, and typing a single expression, ada executes the line to result in x: 4
-
 import json
 import math
 import operator
