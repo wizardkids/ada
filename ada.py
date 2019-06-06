@@ -114,6 +114,10 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
             # then this is a hex number to be converted to rgb
             stack = hex_to_rgb(stack, entered_value)
         
+         # if entered_value is a hexadecimal value, beginning wiht '0x'
+        elif entered_value[0:2].lower() == '0x':
+            stack = convert_hex_dec(stack, entered_value[2:])
+        
         # otherwise, we're going to have to parse what the user entered
         else:
             # put each "item" in user's entry into a [list]
@@ -1225,7 +1229,7 @@ def convert_dec_hex(stack):
     # a decimal value of zero, won't be caught by the while loop, so...
     if cnt == 0:
         hex_value = '0'
-    hex_value = hex_value[::-1]
+    hex_value = '0x' + hex_value[::-1]
 
     print('='*45)
     print(hex_value)
@@ -1234,13 +1238,27 @@ def convert_dec_hex(stack):
     return stack
 
 
-def convert_hex_dec(stack):
+def convert_hex_dec(stack, hex_value):
     """
-    Convert x: from hexadecimal to decimal. 
+    Convert a hexadecimal (string beginning with "0x") to decimal. Since the hexadecimal number is a string, it is not placed on the stack.
+    """
+    # ! RPN() handles this directly without going to process_item()
+    # ! entering '0x' is sufficient to convert hex to decimal
+    # ! so entering 'hexdec' actually does nothing
+    # SOURCE:
+    # https://owlcation.com/stem/Convert-Hex-to-Decimal
+    hex_dict = {
+        '0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5',
+        '6': '6', '7': '7', '8': '8', '9': '9', '10': 'A',
+        '11': 'B', '12': 'C', '13': 'D', '14': 'E', '15': 'F'
+    }
+    hex_value = hex_value[::-1].upper()
+    result = 0
+    for ndx, i in enumerate(hex_value):
+        n = [k for k, v in hex_dict.items() if v == i]
+        result += (int(n[0]) * math.pow(16, ndx))
+    stack.insert(0, result)
 
-THIS FUNCTION IS CURRENTLY NOT IN PLACE.
-    """
-    pass
     return stack
 
 # === USER-DEFINED CONSTANTS FUNCTIONS ====
@@ -2390,8 +2408,8 @@ if __name__ == '__main__':
         "rad": (rad, "convert angle x in degrees to radians"),
         "  ": ('', ''),
         "  ====": ('', '==== CONVERSIONS ======================='),
-        'bin': (convert_to_binary, 'Convert x from decimal to binary.'),
-        "dec": (convert_to_decimal, 'Convert x from binary to decimal.'),
+        'decbin': (convert_to_binary, 'Convert x from decimal to binary.'),
+        "bindec": (convert_to_decimal, 'Convert x from binary to decimal.'),
         "dechex": (convert_dec_hex, 'Convert x from decimal to hex.'),
         "hexdec": (convert_hex_dec, 'Convert x from hex to decimal.'),
         'cm': (cm, 'Convert inches to centimeters.'),
