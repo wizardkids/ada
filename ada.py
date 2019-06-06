@@ -11,7 +11,7 @@ Command line RPN calculator that performs a variety of common functions.
 
 # // -- add dec to hex and hex to dec fxns
 # // -- code the dechex() function
-# todo -- code the hexdec() functions
+# // -- code the hexdec() functions
 
 # todo -- modify readme.md in master:
     # * -- change SAS to SAS/STAT
@@ -1170,7 +1170,7 @@ def math_op2(stack, item):
 
 # === NUMBER SYSTEM CONVERSIONS =====
 
-def convert_to_decimal(stack):
+def convert_bin_to_dec(stack):
     """
     Convert x: from binary to decimal. Replaces binary value in x: with the decimal value.
     
@@ -1186,7 +1186,7 @@ Example:
     return stack
 
 
-def convert_to_binary(stack):
+def convert_dec_to_bin(stack):
     """
     Convert x: from decimal to binary. Binary value is a sting so it is reported as a string, and not placed on the stack.
     
@@ -1201,7 +1201,7 @@ Note: the x: value remains on the stack.
     return stack
 
 
-def convert_dec_hex(stack):
+def convert_dec_to_hex(stack):
     """
     Convert x: from decimal to hexadecimal. Hexadecimal number is a string, so it is reported as a string, and not placed on the stack.
     """
@@ -1238,7 +1238,7 @@ def convert_dec_hex(stack):
     return stack
 
 
-def convert_hex_dec(stack, hex_value):
+def convert_hex_to_dec(stack, hex_value):
     """
     Convert a hexadecimal (string beginning with "0x") to decimal. Since the hexadecimal number is a string, it is not placed on the stack.
     """
@@ -2408,10 +2408,10 @@ if __name__ == '__main__':
         "rad": (rad, "convert angle x in degrees to radians"),
         "  ": ('', ''),
         "  ====": ('', '==== CONVERSIONS ======================='),
-        'decbin': (convert_to_binary, 'Convert x from decimal to binary.'),
-        "bindec": (convert_to_decimal, 'Convert x from binary to decimal.'),
-        "dechex": (convert_dec_hex, 'Convert x from decimal to hex.'),
-        "hexdec": (convert_hex_dec, 'Convert x from hex to decimal.'),
+        'decbin': (convert_dec_to_bin, 'Convert x from decimal to binary.'),
+        "bindec": (convert_bin_to_dec, 'Convert x from binary to decimal.'),
+        "dechex": (convert_dec_to_hex, 'Convert x from decimal to hex.'),
+        "hexdec": (convert_hex_to_dec, 'Convert x from hex to decimal.'),
         'cm': (cm, 'Convert inches to centimeters.'),
         'inch': (inch, 'Convert centimeters to inches.'),
         'cf': (ctof, 'Convert centigrade to Fahrenheit.'),
