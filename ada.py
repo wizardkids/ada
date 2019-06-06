@@ -9,10 +9,6 @@ Command line RPN calculator that performs a variety of common functions.
 # ! Best info on GIT branching strategy:
 # ? https://nvie.com/posts/a-successful-git-branching-model/
 
-# // -- add dec to hex and hex to dec fxns
-# // -- code the dechex() function
-# // -- code the hexdec() functions
-
 # todo -- modify readme.md in master:
     # * -- change SAS to SAS/STAT
     # * -- make the point about the objective of ada being speed of startup and speed of expression entry and speed of execution
