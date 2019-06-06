@@ -1200,15 +1200,9 @@ Note: the x: value remains on the stack.
 def convert_dec_hex(stack):
     """
     Convert x: from decimal to hexadecimal. Hexadecimal number is a string, so it is reported as a string, and not placed on the stack.
-
-
-    Divide the decimal number by 16.   Treat the division as an integer division.  
-    Write down the remainder (in hexadecimal).
-    Divide the result again by 16.  Treat the division as an integer division.  
-    Repeat step 2 and 3 until result is 0.
-    The hex value is the digit sequence of the remainders from the last to first.
-
     """
+    # SOURCE:
+    # https://owlcation.com/stem/Convert-Hex-to-Decimal
     hex_dict = {
             '0':'0', '1':'1', '2':'2', '3':'3', '4':'4', '5':'5',
             '6':'6', '7':'7', '8':'8', '9':'9', '10':'A',
