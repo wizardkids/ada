@@ -6,6 +6,16 @@ Command line RPN calculator that performs a variety of common functions.
 
 """
 
+# ! Best info on GIT branching strategy:
+# ? https://nvie.com/posts/a-successful-git-branching-model/
+
+# todo -- modify readme.md in master:
+    # * -- change SAS to SAS/STAT
+    # * -- make the point about the objective of ada being speed of startup and speed of expression entry and speed of execution
+    # * -- Give an example of the latter
+        # * --  4 16 s 2 ^ 4 / /
+        # * -- with no more than single keys, and typing a single expression, ada executes the line to result in x: 4
+
 import json
 import math
 import operator
@@ -99,6 +109,10 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
         if entered_value[0] == '#':
             # then this is a hex number to be converted to rgb
             stack = hex_to_rgb(stack, entered_value)
+        
+         # if entered_value is a hexadecimal value, beginning wiht '0x'
+        elif entered_value[0:2].lower() == '0x':
+            stack = convert_hex_to_dec(stack, entered_value[2:])
         
         # otherwise, we're going to have to parse what the user entered
         else:
@@ -1152,7 +1166,7 @@ def math_op2(stack, item):
 
 # === NUMBER SYSTEM CONVERSIONS =====
 
-def convert_to_decimal(stack):
+def convert_bin_to_dec(stack):
     """
     Convert x: from binary to decimal. Replaces binary value in x: with the decimal value.
     
@@ -1168,7 +1182,7 @@ Example:
     return stack
 
 
-def convert_to_binary(stack):
+def convert_dec_to_bin(stack):
     """
     Convert x: from decimal to binary. Binary value is a sting so it is reported as a string, and not placed on the stack.
     
@@ -1183,23 +1197,64 @@ Note: the x: value remains on the stack.
     return stack
 
 
-def convert_dec_hex(stack):
+def convert_dec_to_hex(stack):
     """
     Convert x: from decimal to hexadecimal. Hexadecimal number is a string, so it is reported as a string, and not placed on the stack.
-
-THIS FUNCTION IS CURRENTLY NOT IN PLACE.
     """
-    pass
+    # SOURCE:
+    # https://owlcation.com/stem/Convert-Hex-to-Decimal
+    hex_dict = {
+            '0':'0', '1':'1', '2':'2', '3':'3', '4':'4', '5':'5',
+            '6':'6', '7':'7', '8':'8', '9':'9', '10':'A',
+            '11':'B', '12':'C', '13':'D', '14':'E', '15':'F'
+            }
+    result = 1
+    hex_value = ''
+    cnt = 0
+    while True:
+        stack[0] = stack[0] / 16
+        stack = split_number(stack)
+        result = int(stack[0] * 16)
+        if stack[0] == 0 and stack[1] == 0: 
+            break
+        result = hex_dict[str(result)]
+        hex_value += result
+        stack.pop(0)
+        cnt += 1
+    
+    # a decimal value of zero, won't be caught by the while loop, so...
+    if cnt == 0:
+        hex_value = '0'
+    hex_value = '0x' + hex_value[::-1]
+
+    print('='*45)
+    print(hex_value)
+    print('='*45)
+
     return stack
 
 
-def convert_hex_dec(stack):
+def convert_hex_to_dec(stack, hex_value):
     """
-    Convert x: from hexadecimal to decimal. 
+    Convert a hexadecimal (string beginning with "0x") to decimal. Since the hexadecimal number is a string, it is not placed on the stack.
+    """
+    # ! RPN() handles this directly without going to process_item()
+    # ! entering '0x' is sufficient to convert hex to decimal
+    # ! so entering 'hexdec' actually does nothing
+    # SOURCE:
+    # https://owlcation.com/stem/Convert-Hex-to-Decimal
+    hex_dict = {
+        '0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5',
+        '6': '6', '7': '7', '8': '8', '9': '9', '10': 'A',
+        '11': 'B', '12': 'C', '13': 'D', '14': 'E', '15': 'F'
+    }
+    hex_value = hex_value[::-1].upper()
+    result = 0
+    for ndx, i in enumerate(hex_value):
+        n = [k for k, v in hex_dict.items() if v == i]
+        result += (int(n[0]) * math.pow(16, ndx))
+    stack.insert(0, result)
 
-THIS FUNCTION IS CURRENTLY NOT IN PLACE.
-    """
-    pass
     return stack
 
 # === USER-DEFINED CONSTANTS FUNCTIONS ====
@@ -2349,10 +2404,10 @@ if __name__ == '__main__':
         "rad": (rad, "convert angle x in degrees to radians"),
         "  ": ('', ''),
         "  ====": ('', '==== CONVERSIONS ======================='),
-        'bin': (convert_to_binary, 'Convert x from decimal to binary.'),
-        "dec": (convert_to_decimal, 'Convert x from binary to decimal.'),
-        "dechex": (convert_dec_hex, 'Convert x from decimal to hex.'),
-        "hexdec": (convert_hex_dec, 'Convert x from hex to decimal.'),
+        'decbin': (convert_dec_to_bin, 'Convert x from decimal to binary.'),
+        "bindec": (convert_bin_to_dec, 'Convert x from binary to decimal.'),
+        "dechex": (convert_dec_to_hex, 'Convert x from decimal to hex.'),
+        "hexdec": (convert_hex_to_dec, 'Convert x from hex to decimal.'),
         'cm': (cm, 'Convert inches to centimeters.'),
         'inch': (inch, 'Convert centimeters to inches.'),
         'cf': (ctof, 'Convert centigrade to Fahrenheit.'),
