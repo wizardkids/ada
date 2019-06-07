@@ -24,11 +24,6 @@ $ git push origin develop
 
 # todo -- the .exe file created by pyinstaller does not read files; it creates config.json and constants.json, but doesn't read them after creating them
 
-# // -- fix parsing of expression obtained from user-defined constants; execution was leaving values on the stack
-
-# // -- in calculator_settings, change prompts to ask for ON/OFF; <enter> without a choice changes a setting to default
-
-
 import json
 import math
 import operator
@@ -42,7 +37,7 @@ from sys import modules
 
 # MAIN CALCULATOR FUNCTION ====================
 
-def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
+def RPN(stack, user_dict, lastx_list, mem, settings, tape):
     """
     Main function that gets user's input and does initial processing. This means that some inputs can be handled easily, but most will require further processing by process_item() which will return a [list] of individual items that the user entered.
     """
@@ -95,6 +90,8 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
         # if item is the name of a user-defined constant...
         if entered_value in user_dict.keys():
             # get the user-defined constant/expression, itself
+# todo -- this next line is not getting the update user_dict after
+# todo -- adding a new expression, or modifying an existing one
             entered_value = str(user_dict[entered_value][0])
 
         # if the entered_value begins with a '#', then it's a hex number, requiring special handling
@@ -151,7 +148,7 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
                     if item == 'set':
                         settings = calculator_settings(settings)
                     else:
-                        stack, lastx_list, tape = process_item(
+                        stack, lastx_list, tape, user_dict = process_item(
                             stack, user_dict, lastx_list, mem, settings, tape, item)
                     ndx += 1
                     continue
@@ -159,7 +156,7 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
                 # if '(', then this is the start of a group; a result is obtained for each group
                 elif item == '(':
                     while item != ')':
-                        stack, lastx_list, tape = process_item(
+                        stack, lastx_list, tape, user_dict = process_item(
                             stack, user_dict, lastx_list, mem, settings, tape, item)
                         ndx += 1
                         if ndx < len(entered_list):
@@ -175,7 +172,7 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
 
         if quit:
             # save {settings} to disk before quitting
-            with open('config.json', 'w') as file:
+            with open('config.json', 'w+') as file:
                 file.write(json.dumps(settings, ensure_ascii=False))
             print('\nEnd program.\n')
             return None
@@ -246,7 +243,7 @@ def process_item(stack, user_dict, lastx_list, mem, settings, tape, item):
         print('Unknown command.')
         print('='*45)
 
-    return stack, lastx_list, tape
+    return stack, lastx_list, tape, user_dict
 
 
 def parse_entry(stack, entered_value):
@@ -694,7 +691,7 @@ def calculator_settings(settings):
                 'show_tape': 'N',
                 'show_tips': 'Y',
                 }
-        with open('config.json', 'w') as file:
+        with open('config.json', 'w+') as file:
             file.write(json.dumps(settings, ensure_ascii=False))
 
     while True:
@@ -795,7 +792,9 @@ def calculator_settings(settings):
         # print the new settings
         print('\n', '='*15, ' NEW SETTINGS ', '='*15, sep='')
         for k, v in settings.items():
-            if k == "dec_point":
+            if k == 'show_menu':
+                print('     Show menu:', v)
+            elif k == "dec_point":
                 print('Decimal points:', v)
             elif k == 'separator':
                 if settings['separator'] == '':
@@ -815,7 +814,7 @@ def calculator_settings(settings):
             break
             
     # save {settings} to file, whether changed or not
-    with open('config.json', 'w') as file:
+    with open('config.json', 'w+') as file:
         file.write(json.dumps(settings, ensure_ascii=False))
 
     return settings
@@ -1297,7 +1296,7 @@ NOTE: Keep in mind that during evaluation of the expression, the stack contents 
     y:          0.0000
     x:         28.0000
 
-NOTE: 
+NOTES: 
 (1) The non-obvious point is that, in an expression, the registers (e.g., "x:") are not variable names, but refer to the stack at THAT point in the expression's execution.
 
 (2) Simple use of register names can save a lot of time when repeating simple calculations, such as getting the mid-point between two values. Create and save the following expression, say as "mid". 
@@ -1312,7 +1311,14 @@ An easy way to get the expression: use the command line to do what you need, the
 
     user
 
-(2) Memory registers can act as variables, and may be better suited for some complicated expressions. See help for M+, M-, MR, and ML.
+(3) User-define constant/expression names cannot be used as part of a sequence. For example:
+
+    100 50 mid  -- invalid
+
+    100 50      -- put values on stack first
+    mid         -- valid
+
+(4) Memory registers can act as variables, and may be better suited for some complicated expressions. See help for M+, M-, MR, and ML.
     
 Type:
     
@@ -2196,7 +2202,13 @@ to get information about a specific command. Example:
 
 def basics(stack):
     """
-    The basics of RPN.\n\nType:\n\nbasics\n\nto display an introduction to how RPN calculators work.
+    The basics of RPN.
+    
+Type:
+
+    basics
+    
+to display an introduction to how RPN calculators work.
     """
     txt = """
 ============= HELP: RPN BASICS ==============
@@ -2264,7 +2276,13 @@ Parentheses make sure that operations are applied as you intend. The result of t
 
 def advanced(stack):
     """
-    Advanced help: how to use this calculator: ada.\n\nType:\n\nadvanced\n\nfor information about advanced use of RPN and, in particular, this command-line calculator.
+    Advanced help: how to use this calculator: ada.
+    
+Type:
+
+    advanced
+    
+for information about advanced use of RPN and, in particular, this command-line calculator.
     """
     txt = """ 
 =========== HELP: HOW TO USE ada ============
@@ -2308,7 +2326,7 @@ for more detailed information.
 
 1. Memory register, where you can store, add, subtract, and recall numbers. Access these registers by their number. [related commands: M+, M-, MR, MD, and ML]
 
-2. User-defined constants, where you can store constants, or even whole expressions, by name. These are saved between sessions. [related commands: user, usercon, ue, userexpr]
+2. User-defined constants, where you can store constants, or even whole expressions, by name. These are saved between sessions. [related commands: user, usercon]
 
 3. Conversion between RGB and hex colors, including alpha values. [related commands: alpha, rgb, and hex]
 
@@ -2377,7 +2395,6 @@ if __name__ == '__main__':
     lastx_list, mem, tape = [0.0], {}, []
     letters = ascii_letters + '_' + ':'
     lower_letters = ascii_lowercase + '_' + ':'
-    userexpr = ''
 
     # initial setup by saving default settings to config.json
     # if the file already exists, then put contents in {settings}
@@ -2392,7 +2409,8 @@ if __name__ == '__main__':
             'show_tape': 'N',
             'show_tips': 'Y',
             }
-        with open('config.json', 'w') as file:
+        # if config.json does not exist, create it
+        with open('config.json', 'w+') as file:
             file.write(json.dumps(settings, ensure_ascii=False))
         
     # menu gets printed on screen 4 items to a line
@@ -2566,7 +2584,7 @@ if __name__ == '__main__':
     except FileNotFoundError:
         user_dict = {}
 
-    stack = RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr)
+    stack = RPN(stack, user_dict, lastx_list, mem, settings, tape)
 
     # the following line if for the developer only
     # stack = print_all_functions(stack, user_dict)

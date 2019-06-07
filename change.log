@@ -60,3 +60,5 @@ rev 2019-06-06
     -- modify the help for define_constant()
     -- change version number from 2.3 to 2.4
     -- change revision datetime format from "2019-06-07 12:55 AM" to "201906071255" using military time
+    -- fixed line 2417 to use w+ rather than w, so if the file does not exist, it will be created
+    -- fixed process_item so that changes to user_dict are passed between functions
