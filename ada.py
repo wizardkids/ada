@@ -6,24 +6,6 @@ Command line RPN calculator that performs a variety of common functions.
 
 """
 
-# version_num is in "if __name__ == '__main__':" 
-    # ? -- versioning: x.y z
-    # ?    Where:
-    # ?        x = main version number
-    # ?        y = feature number, 0-9. Increase this number if the change contains new features with or without bug fixes.
-    # ?        z = revision datetime
-
-# ! Best info on GIT branching strategy:
-    # ? https://nvie.com/posts/a-successful-git-branching-model/
-"""
-MANAGING A MERGE TO DEVELOP:
-$ git checkout develop
-$ git merge --no-ff features
-$ git push origin develop
-"""
-
-# todo -- the .exe file created by pyinstaller does not read files; it creates config.json and constants.json, but doesn't read them after creating them
-
 import json
 import math
 import operator
@@ -2396,7 +2378,7 @@ Example:
 
 if __name__ == '__main__':
 
-    version_num = '2.4 rev??'
+    version_num = '2.4 rev201906071339'
 
     print('ada ' + version_num[0:3] +  ' - an RPN calculator')
 
