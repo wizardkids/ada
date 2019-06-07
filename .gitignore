@@ -8,3 +8,4 @@ scratch.py
 constants.json
 config.json
 *.pyc
+ada.py.orig
