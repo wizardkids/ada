@@ -11,7 +11,7 @@ Command line RPN calculator that performs a variety of common functions.
     # ?    Where:
     # ?        x = main version number
     # ?        y = feature number, 0-9. Increase this number if the change contains new features with or without bug fixes.
-    # ?        z = revision datetime
+    # ?        z = revision number determined by get_revision_number()
 
 # ! Best info on GIT branching strategy:
     # ? https://nvie.com/posts/a-successful-git-branching-model/
@@ -23,6 +23,9 @@ $ git push origin develop
 """
 
 # todo -- the .exe file created by pyinstaller does not read files; it creates config.json and constants.json, but doesn't read them after creating them
+
+# todo -- add an .exe file to develop
+# todo -- to readme.md, add a bit about installation, including installing ada.py, ada.exe, or using pyinstaller on the .py file
 
 import json
 import math
@@ -2391,12 +2394,27 @@ Example:
     
     return stack
 
+def get_revision_number():
+    """
+    Manually run this function to get a revision number.
+    """
+    from datetime import datetime
+
+    start_date = datetime(2018, 2, 18)
+    tday = datetime.today()
+    revision_delta = datetime.today() - start_date
+
+    print(revision_delta.days)
+    return None
+
 
 # GLOBAL FUNCTIONS AND RUN RPN() ====================
 
 if __name__ == '__main__':
 
-    version_num = '2.4 rev??'
+    # get_revision_number()
+
+    version_num = '2.4 rev474'
 
     print('ada ' + version_num[0:3] +  ' - an RPN calculator')
 
