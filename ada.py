@@ -22,17 +22,9 @@ $ git merge --no-ff features
 $ git push origin develop
 """
 
-# // -- fix the version number when you move to the develop branching
-# * how are you going to handle major.minor rev datetime changes?
-    # * how are you going to handle revision datetimes?
-
-# // -- changing a setting in {settings} does not commit the change until after a restart
-
-# // - I can create a usercon names "one" but when I type <one> the value of "one" does not appear in x:. If I type <ue one>, then the value appears in x:. This is not how I want it to work.
-    # // process_item() is putting the whole expression on the stack, rather than parsing it into individual items
-# // -- create a setting in {settings} that can turn the menu on or off; once a user get's accustomed to ada, a menu is superfluous and simply takes up space.
-
 # todo -- the .exe file created by pyinstaller does not read files; it creates config.json and constants.json, but doesn't read them after creating them
+
+# todo -- fix parsing of expression obtained from user-defined constants; execution was leaving values on the stack
 
 
 import json
@@ -98,9 +90,9 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
         # HERE, WE START INITIAL PROCESSING OF entered_value
         # ==========================================================
 
-        # if item is the name of a user-defined constant, decide if it's a number or if it is an expression needing to be parsed
+        # if item is the name of a user-defined constant...
         if entered_value in user_dict.keys():
-            # get the user-defined expression, itself
+            # get the user-defined constant/expression, itself
             entered_value = str(user_dict[entered_value][0])
 
         # if the entered_value begins with a '#', then it's a hex number, requiring special handling
@@ -116,16 +108,6 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
         else:
             # put each "item" in user's entry into a [list]
             stack, entered_list = parse_entry(stack, entered_value)
-
-            # if there's a colon in entered_list, then this is a user expression that requires special handling
-            if ':' in entered_value:
-                registers = ['x:', 'y:', 'z:', 't:']
-                for ndx, r in enumerate(registers):
-                    try:
-                        if r in entered_value:
-                            stack[ndx] = 0.0
-                    except ValueError:
-                        pass
 
             # process each item (number, operator, shortcuts, commands, etc.) in [entered_list]
             ndx = 0
@@ -342,6 +324,11 @@ def parse_entry(stack, entered_value):
     else:
         entered_list.append(entered_value)
 
+    # in case x:, y:, z:, t: are used, the values in those registers now reside in entered_value, so delete them from the stack
+    for ndx, r in enumerate(['x:', 'y:', 'z:', 't:']):
+        if r in entered_value:
+            stack[ndx] = 0.0
+    
     # convert numbers to floats and strip out empty elements  and punctuation(e.g., commas, as in, comma delimited number sequences)
     for i in data:
         if i in [',', ';', ':']:
@@ -1341,7 +1328,7 @@ to list the current user-defined constants.
             print()
             print('NAME: lowercase; avoid names already in use.')
             print('VALUE: Enter either a number or an expression.')
-            print('   If you need information on expressions,\n   press <enter> then:\n\nh ue\n')
+            print('   If you need information on expressions,\n   press <enter> then:\n\nh user\n')
             print()
             name = input("Name of constant/conversion: ")
             
