@@ -1,1 +1,1 @@
-{"rick": ["(3 4 +)", "none"], "trial": ["x: y: +", "none"], "one": [32543.0, "none"]}
+{"rick": ["(3 4 +)", "none"], "trial": ["x: y: +", "none"], "one": [32543.0, "none"], "two": ["x: y: +", "test"], "mid": ["y: x: s dup rd - 2 / s d +", ""]}
