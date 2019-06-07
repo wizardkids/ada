@@ -39,3 +39,28 @@ rev 2019-06-03 07:42 PM
             x = main version number
             y = feature number, 0-9. Increase this number if the changecontains new features with or without bug fixes.
             z = revision datetime
+        
+rev 2019-06-06
+    -- change all dec/hex/bin function names to be consistent with each other
+    -- add coding for convert_hex_to_dec and convert_dec_to_hex
+    add readme.md
+    -- minor bug fixes
+
+
+    -- edited advanced() for clarity
+    -- help():
+        -- fixed length of first and last "line" in txt
+        -- removed the dashed lines in the docString
+    -- rearranged order of items in the HELP section of {commands}
+    -- at line 89, add section to handle entry of user-defined constant and expression names; this allowed
+            -- deletion of the section beginning at line 88: "if ('ue ' in entered_value[1:] or 'userexpr ' in entered_value[1:]):"
+            -- removal of get_user_expression() and its shortcuts
+    -- add setting to {settings} that allows user to turn calculator menu on or off
+    -- remove get_user_expression() and shortcuts referring to item
+    -- modify the help for define_constant()
+    -- change version number from 2.3 to 2.4
+    -- change revision datetime format from "2019-06-07 12:55 AM" to "201906071255" using military time
+    -- fixed line 2417 to use w+ rather than w, so if the file does not exist, it will be created
+    -- fixed process_item so that changes to user_dict are passed between functions
+    -- fix mem_del() so that memory register numbers are not left on the stack
+    -- fixed functions of converting bin to dec and hex to dec at ~100

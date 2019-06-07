@@ -19,7 +19,7 @@ from sys import modules
 
 # MAIN CALCULATOR FUNCTION ====================
 
-def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
+def RPN(stack, user_dict, lastx_list, mem, settings, tape):
     """
     Main function that gets user's input and does initial processing. This means that some inputs can be handled easily, but most will require further processing by process_item() which will return a [list] of individual items that the user entered.
     """
@@ -32,13 +32,14 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
             print_tape(stack, tape)
 
         # print the register
-        stack = print_register(stack)
+        stack = print_register(stack, settings)
 
         # generate the menu
-        print()
-        for i in range(0, len(menu), 4):
-            m = ''.join(menu[i:i+4])
-            print(m)
+        if settings['show_menu'] == 'Y':
+            print()
+            for i in range(0, len(menu), 4):
+                m = ''.join(menu[i:i+4])
+                print(m)
 
         # print user tip, optionally
         if settings['show_tips'] == 'Y':
@@ -68,52 +69,30 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
         # HERE, WE START INITIAL PROCESSING OF entered_value
         # ==========================================================
 
-        # if the user wants a user-defined expression, then 
-        # (1) they entered "userexpr [name]" or "ue [name]" so we need the named expression as the entered_value
-        # (2) they need to enter ue [name] as a single command
-        
-        if ('ue ' in entered_value[1:] or 'userexpr ' in entered_value[1:]):
-            print('='*45)
-            print('ue [expression name] or userexpr [expression name]\nmust be entered alone on the command line.')
-            print('='*45)
-            continue
-        elif ('ue' in entered_value[0:] or 'userexpr' in entered_value[0:]):
-            if entered_value[0:8] == 'userexpr' or entered_value[0:2] == 'ue':
-                item = entered_value[9:] if entered_value[0:8] == 'userexpr' else entered_value[3:]
-                # "throw away" what the user entered and get the requested expression
-                if not item:
-                    print('='*45)
-                    print('You must enter [expression name].')
-                    print('='*45)
-                    continue
-                entered_value = get_user_expression(stack, item)
-                if not entered_value:
-                    print('='*45)
-                    print('You must enter [expression name].')
-                    print('='*45)
-                    continue
-
-                print()
+        # if item is the name of a user-defined constant...
+        if entered_value in user_dict.keys():
+            # get the user-defined constant/expression, itself
+            entered_value = str(user_dict[entered_value][0])
 
         # if the entered_value begins with a '#', then it's a hex number, requiring special handling
         if entered_value[0] == '#':
             # then this is a hex number to be converted to rgb
             stack = hex_to_rgb(stack, entered_value)
         
+         # if entered_value is a hexadecimal value, beginning with '0x'
+        elif entered_value[0:2] == '0x':
+            stack = convert_hex_to_dec(stack, entered_value.split(' ')[0][2:])
+            continue
+
+        # if entered_value is a binary number beginning with "0b"
+        elif entered_value[0:2] == '0b':
+            stack = convert_bin_to_dec(stack, entered_value.split(' ')[0][2:])
+            continue
+        
         # otherwise, we're going to have to parse what the user entered
         else:
             # put each "item" in user's entry into a [list]
             stack, entered_list = parse_entry(stack, entered_value)
-
-            # if there's a colon in entered_list, then this is a user expression that requires special handling
-            if ':' in entered_value:
-                registers = ['x:', 'y:', 'z:', 't:']
-                for ndx, r in enumerate(registers):
-                    try:
-                        if r in entered_value:
-                            stack[ndx] = 0.0
-                    except ValueError:
-                        pass
 
             # process each item (number, operator, shortcuts, commands, etc.) in [entered_list]
             ndx = 0
@@ -155,7 +134,7 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
                     if item == 'set':
                         settings = calculator_settings(settings)
                     else:
-                        stack, lastx_list, tape = process_item(
+                        stack, lastx_list, tape, user_dict = process_item(
                             stack, user_dict, lastx_list, mem, settings, tape, item)
                     ndx += 1
                     continue
@@ -163,7 +142,7 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
                 # if '(', then this is the start of a group; a result is obtained for each group
                 elif item == '(':
                     while item != ')':
-                        stack, lastx_list, tape = process_item(
+                        stack, lastx_list, tape, user_dict = process_item(
                             stack, user_dict, lastx_list, mem, settings, tape, item)
                         ndx += 1
                         if ndx < len(entered_list):
@@ -179,7 +158,7 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
 
         if quit:
             # save {settings} to disk before quitting
-            with open('config.json', 'w') as file:
+            with open('config.json', 'w+') as file:
                 file.write(json.dumps(settings, ensure_ascii=False))
             print('\nEnd program.\n')
             return None
@@ -194,13 +173,10 @@ def process_item(stack, user_dict, lastx_list, mem, settings, tape, item):
 
     Takes an item in entered_list, which is going to be anything except a shortcut, and figures out what to do with it.
     """
+
     # if it's a '(' or ')', we have the start or end of a group; do nothing
     if item in ['(', ')']:
         pass
-
-    # if item is a user-defined constant
-    elif item in user_dict.keys():
-        stack.insert(0, user_dict[item][0])
 
     # if item is a float
     elif type(item) == float:
@@ -253,7 +229,7 @@ def process_item(stack, user_dict, lastx_list, mem, settings, tape, item):
         print('Unknown command.')
         print('='*45)
 
-    return stack, lastx_list, tape
+    return stack, lastx_list, tape, user_dict
 
 
 def parse_entry(stack, entered_value):
@@ -333,6 +309,11 @@ def parse_entry(stack, entered_value):
     else:
         entered_list.append(entered_value)
 
+    # in case x:, y:, z:, t: are used, the values in those registers now reside in entered_value, so delete them from the stack
+    for ndx, r in enumerate(['x:', 'y:', 'z:', 't:']):
+        if r in entered_value:
+            stack[ndx] = 0.0
+    
     # convert numbers to floats and strip out empty elements  and punctuation(e.g., commas, as in, comma delimited number sequences)
     for i in data:
         if i in [',', ';', ':']:
@@ -346,7 +327,7 @@ def parse_entry(stack, entered_value):
     return stack, entered_list
 
 
-def print_register(stack):
+def print_register(stack, settings):
     """
     Display the stack register.
     """
@@ -551,18 +532,11 @@ def print_dict(stack):
     """
     List user-defined constants and expressions. 
     
-(1) To use a user-define constant, type its name to put the value of the constant on the stack.
-
-(2) To use (execute) a user-defined expression, type:
-
-    ue [expression name] or userexpr [expression name]
-    
+(1) To use a user-define constant or expression, type its name. Either the constant's value will be placed on the stack or the expression will be executed.
 
 Related commands:
     
     usercon --> to list the current user-defined constants. 
-
-    h ue --> for help on entering expressions, including the use of register names (e.g., x:, y:) in expressions.
 
     user --> to create user-defined (named) constants and expressions
     """
@@ -697,19 +671,22 @@ def calculator_settings(settings):
     except FileNotFoundError:
         # save default settings to config.json:
         settings = {
+                'show_menu': 'Y',
                 'dec_point': '4',
                 'separator': ',',
                 'show_tape': 'N',
                 'show_tips': 'Y',
                 }
-        with open('config.json', 'w') as file:
+        with open('config.json', 'w+') as file:
             file.write(json.dumps(settings, ensure_ascii=False))
 
     while True:
         # print the current settings
         print('\n', '='*13, ' CURRENT SETTINGS ', '='*13, sep='')
         for k, v in settings.items():
-            if k == "dec_point":
+            if k == 'show_menu':
+                print('     Show menu:', v)
+            elif k == "dec_point":
                 print('Decimal points:', v)
             elif k == 'separator':
                 if settings['separator'] == '':
@@ -726,15 +703,24 @@ def calculator_settings(settings):
 
         # print a menu of setting options
         s = input(
-            "\n     Set decimal <p>oint \
+            "\n          Display <m>enu\
+            \n      Set decimal <p>oint \
             \nSet thousands <s>eparator \
-            \n              Show <tape> \
+            \n              Show <t>ape \
             \n                   <E>xit\n").lower()
         if not s:
             break
 
+        # change menu setting
+        if s[0].strip().lower() == 'm':
+            m = input('Calculator menu (ON/OFF) ')
+            if m.strip().upper() == 'OFF':
+                settings['show_menu'] = 'N'
+            else:
+                settings['show_menu'] = 'Y'
+
         # change decimal point setting
-        if s[0].strip().lower() == 'p':
+        elif s[0].strip().lower() == 'p':
             # usage example: enter <p8> or <p 8> to set decimal points to 8 places
             # enter <p> to generate step-by-step process
             # entering <map> or <pee> generates usage help
@@ -756,6 +742,13 @@ def calculator_settings(settings):
                 except:
                     print('Usage: p[number decimal points]')
 
+        # user entered number + <p>
+        elif s[-1].strip().lower() == 'p':
+            try:
+                settings['dec_point'] = str(int(s[:-1])).strip()
+            except:
+                print('Usage: p[number decimal points]')
+
         # change thousands separator setting
         elif s.strip() == 's':
             separator = input("Thousands separator ('none' or ','): ")
@@ -765,9 +758,9 @@ def calculator_settings(settings):
                 settings['separator'] = ','
         
         # change whether or not tape displays
-        elif s.strip() == 'tape':
-            tape = input('Show tape persistently? (Y/N): ') 
-            if tape.strip().upper() == 'Y':
+        elif s.strip() == 't':
+            tape = input('Show tape persistently? (ON/OFF): ') 
+            if tape.strip().upper() == 'ON':
                 settings['show_tape'] = 'Y'
             else:
                 settings['show_tape'] = 'N'
@@ -785,7 +778,9 @@ def calculator_settings(settings):
         # print the new settings
         print('\n', '='*15, ' NEW SETTINGS ', '='*15, sep='')
         for k, v in settings.items():
-            if k == "dec_point":
+            if k == 'show_menu':
+                print('     Show menu:', v)
+            elif k == "dec_point":
                 print('Decimal points:', v)
             elif k == 'separator':
                 if settings['separator'] == '':
@@ -805,7 +800,7 @@ def calculator_settings(settings):
             break
             
     # save {settings} to file, whether changed or not
-    with open('config.json', 'w') as file:
+    with open('config.json', 'w+') as file:
         file.write(json.dumps(settings, ensure_ascii=False))
 
     return settings
@@ -1152,23 +1147,23 @@ def math_op2(stack, item):
 
 # === NUMBER SYSTEM CONVERSIONS =====
 
-def convert_to_decimal(stack):
+def convert_bin_to_dec(stack, bin_value):
     """
     Convert x: from binary to decimal. Replaces binary value in x: with the decimal value.
     
 Example:
-    1000 dec --> x: 8
+    0b1000 dec --> x: 8
     """
     if stack[0] < 0:
         print('='*45)
         print('Cannot find binary equivalent of a negative number.')
         print('='*45)
         return stack
-    stack[0] = int('0b' + str(int(stack[0])), 2)
+    stack[0] = int(bin_value, 2)
     return stack
 
 
-def convert_to_binary(stack):
+def convert_dec_to_bin(stack):
     """
     Convert x: from decimal to binary. Binary value is a sting so it is reported as a string, and not placed on the stack.
     
@@ -1183,23 +1178,64 @@ Note: the x: value remains on the stack.
     return stack
 
 
-def convert_dec_hex(stack):
+def convert_dec_to_hex(stack):
     """
     Convert x: from decimal to hexadecimal. Hexadecimal number is a string, so it is reported as a string, and not placed on the stack.
-
-THIS FUNCTION IS CURRENTLY NOT IN PLACE.
     """
-    pass
+    # SOURCE:
+    # https://owlcation.com/stem/Convert-Hex-to-Decimal
+    hex_dict = {
+            '0':'0', '1':'1', '2':'2', '3':'3', '4':'4', '5':'5',
+            '6':'6', '7':'7', '8':'8', '9':'9', '10':'A',
+            '11':'B', '12':'C', '13':'D', '14':'E', '15':'F'
+            }
+    result = 1
+    hex_value = ''
+    cnt = 0
+    while True:
+        stack[0] = stack[0] / 16
+        stack = split_number(stack)
+        result = int(stack[0] * 16)
+        if stack[0] == 0 and stack[1] == 0: 
+            break
+        result = hex_dict[str(result)]
+        hex_value += result
+        stack.pop(0)
+        cnt += 1
+    
+    # a decimal value of zero, won't be caught by the while loop, so...
+    if cnt == 0:
+        hex_value = '0'
+    hex_value = '0x' + hex_value[::-1]
+
+    print('='*45)
+    print(hex_value)
+    print('='*45)
+
     return stack
 
 
-def convert_hex_dec(stack):
+def convert_hex_to_dec(stack, hex_value):
     """
-    Convert x: from hexadecimal to decimal. 
+    Convert a hexadecimal (string beginning with "0x") to decimal. Since the hexadecimal number is a string, it is not placed on the stack.
+    """
+    # ! RPN() handles this directly without going to process_item()
+    # ! entering '0x' is sufficient to convert hex to decimal
+    # ! so entering 'hexdec' actually does nothing
+    # SOURCE:
+    # https://owlcation.com/stem/Convert-Hex-to-Decimal
+    hex_dict = {
+        '0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5',
+        '6': '6', '7': '7', '8': '8', '9': '9', '10': 'A',
+        '11': 'B', '12': 'C', '13': 'D', '14': 'E', '15': 'F'
+    }
+    hex_value = hex_value[::-1].upper()
+    result = 0
+    for ndx, i in enumerate(hex_value):
+        n = [k for k, v in hex_dict.items() if v == i]
+        result += (int(n[0]) * math.pow(16, ndx))
+    stack.insert(0, result)
 
-THIS FUNCTION IS CURRENTLY NOT IN PLACE.
-    """
-    pass
     return stack
 
 # === USER-DEFINED CONSTANTS FUNCTIONS ====
@@ -1221,18 +1257,60 @@ def define_constant(stack, user_dict):
 
     Example (2):
         (y: x: - ) 2 / 140 +
+
+The latter example show use of register names in an expression. Here is how to construct these types of expression. Let's create this expression:
+
+    (x: y: +) y: *
+    
+NOTE: Keep in mind that during evaluation of the expression, the stack contents change as operations are executed. We'll see this happen in this example...
+
+-- Let's put the following values on the stack.
+
+    z:          7.0000
+    y:          3.0000
+    x:          1.0000
+
+-- When the expression is run, the + operator adds x: and y:. y: is removed and x: is replaced with the result: 4. z: drops down to the y: register:
+
+    z:          0.0000
+    y:          7.0000
+    x:          4.0000
+
+-- Then the current x: and y: are multiplied and the result, 28, is put in the x: register:
+
+    z:          0.0000
+    y:          0.0000
+    x:         28.0000
+
+NOTES: 
+(1) The non-obvious point is that, in an expression, the registers (e.g., "x:") are not variable names, but refer to the stack at THAT point in the expression's execution.
+
+(2) Simple use of register names can save a lot of time when repeating simple calculations, such as getting the mid-point between two values. Create and save the following expression, say as "mid". 
+
+    y: x: s dup rd - 2 / s d +
+
+Put any two values on the stack, and run the expression by typing:
+
+    mid
+
+An easy way to get the expression: use the command line to do what you need, then copy the steps from the tape. Format into one line, if needed, and then paste in the VALUE field when you create the user-defined expression using:
+
+    user
+
+(3) User-define constant/expression names cannot be used as part of a sequence. For example:
+
+    100 50 mid  -- invalid
+
+    100 50      -- put values on stack first
+    mid         -- valid
+
+(4) Memory registers can act as variables, and may be better suited for some complicated expressions. See help for M+, M-, MR, and ML.
     
 Type:
     
     usercon
 
 to list the current user-defined constants. 
-
-Type:
-
-    h ue
-
-for help on entering expressions using register names (e.g., x:, y:)
     """
     try:
         with open("constants.json", 'r') as file:
@@ -1251,7 +1329,7 @@ for help on entering expressions using register names (e.g., x:, y:)
             print()
             print('NAME: lowercase; avoid names already in use.')
             print('VALUE: Enter either a number or an expression.')
-            print('   If you need information on expressions,\n   press <enter> then:\n\nh ue\n')
+            print('   If you need information on expressions,\n   press <enter> then:\n\nh user\n')
             print()
             name = input("Name of constant/conversion: ")
             
@@ -1345,7 +1423,7 @@ for help on entering expressions using register names (e.g., x:, y:)
     return stack, user_dict
 
 
-def get_user_expression(stack, item):
+def get_user_expression_NOT_USED(stack, item):
     """
     Get a user-defined expression from the file containing user-defined constants. Execute the expression and place the result on the stack. This operation is particularly useful if you need to reuse a complicated expression with different stack values, making this a rudimentary programmable calculator.
     
@@ -1361,13 +1439,7 @@ Usage:
     
 Or, you can use x:, y:, z:, t: in your expression to refer to specific registers in the stack.
 
-(2) To use your expression, put any necessary values on the stack, then...
-
-(3) Type:
-
-    ue [expression name] or userexpr [expression name]
-    
-to run the named user expression.
+(2) To use your expression, type the expressions name
 
 Example, using register names:
 
@@ -1400,9 +1472,9 @@ NOTE:
 
     y: x: s dup rd - 2 / s d +
 
-Put any two values on the stack, and run the expression using:
+Put any two values on the stack, and run the expression by typing:
 
-    ue mid
+    mid
 
 An easy way to get the expression: use the command line to do what you need, then copy the steps from the tape. Format into one line, if needed, and then paste in the VALUE field when you create the user-defined expression using:
 
@@ -2010,7 +2082,7 @@ def mem_list(stack, mem):
 
     print('\n', '='*15, ' MEMORY STACK ', '='*16, sep='')
     for k, v in sorted_mem.items():
-        print('Register ', k, ': ', v, sep='')
+        print('Register ', int(k), ': ', v, sep='')
     print('='*45, sep='')
 
 
@@ -2018,7 +2090,7 @@ def mem_del(stack, mem):
     """
     Delete one, or a range, of memory registers. If x: (or y:) is not an integer, it will be converted to the next higher integer value to determine the target memory register for this operation. When deleting a range of registers, the order of the register numbers on the stack does not matter.
 
-NOTE: Make sure the stack is clear before entering register numbers since, pending confirmation, this operation uses whatever numbers appear in x: and y: 
+NOTE: Make sure the stack is clear before entering register numbers since, pending confirmation, this operation uses whatever numbers appear in x: and y: as the range of registers to delete.
 
 Example (1):
     1 MD --> deletes #1 memory register
@@ -2037,6 +2109,8 @@ to inspect (list) the memory registers.
     """
     register1, register2 = 0, 0
 
+    # delete a single register: register2
+    # delete a range: between register1 and register2, inclusive
     if math.ceil(stack[0]) >= 1:
         register1 = math.ceil(stack[0])
     else:
@@ -2052,31 +2126,35 @@ to inspect (list) the memory registers.
         print('Register numbers are positive integers, only.')
         print('='*45)
 
-    # make sure the register exists in {mem}
-
     # make sure register2 is >= register1
     if register1 > register2:
         register1, register2 = register2, register1
 
-    # if you only want to delete 1 register, then register1 will be -0-
+    # if you only want to delete 1 register, then register1 will be -0- and we will delete register2
     if register1 == 0:
         print('Are you sure you want to delete')
         confirm = input('register ' + str(register2) + '? (Y/N) ')
         if confirm.upper() == 'N':
+            stack.pop(0)
             return stack, mem
         if register2 in mem:
+            stack.pop(0)
             del mem[register2]
         
     else:
         print('Are you sure you want to delete')
         confirm = input('register ' + str(register1) + ' to register ' + str(register2) + '? (Y/N) ')
         if confirm.upper() == 'N':
+            stack.pop(0)
+            stack.pop(0)
             return stack, mem
-        
-        # remove registers between register1 and register 2, inclusive
-        for i in range(register2, register1-1, -1):
-            if i in mem:
-                del mem[i]
+        else:
+            # remove registers between register1 and register2, inclusive
+            for i in range(register2, register1-1, -1):
+                if i in mem:
+                    del mem[i]
+            stack.pop(0)
+            stack.pop(0)
         
     return stack, mem
 
@@ -2085,8 +2163,7 @@ to inspect (list) the memory registers.
 
 def help(stack):
     """
-===================== HELP ======================
-<basics>: the basics of RPN
+  <basics>: the basics of RPN
 <advanced>: how to use THIS calculator
 
 You can also type:
@@ -2097,7 +2174,7 @@ to get information about a specific command.
 """
 
     txt = """
-===================== HELP ======================
+=================== HELP ====================
 <basics> : the basics of RPN
 <advanced> : how to use THIS calculator
 
@@ -2108,7 +2185,7 @@ You can also type:
 to get information about a specific command. Example:
 
     h help
-=================================================="""
+============================================="""
 
     print('\n'.join([fold(txt) for txt in txt.splitlines()]))
 
@@ -2117,7 +2194,13 @@ to get information about a specific command. Example:
 
 def basics(stack):
     """
-    The basics of RPN.\n\nType:\n\nbasics\n\nto display an introduction to how RPN calculators work.
+    The basics of RPN.
+    
+Type:
+
+    basics
+    
+to display an introduction to how RPN calculators work.
     """
     txt = """
 ============= HELP: RPN BASICS ==============
@@ -2185,7 +2268,13 @@ Parentheses make sure that operations are applied as you intend. The result of t
 
 def advanced(stack):
     """
-    Advanced help: how to use this calculator: ada.\n\nType:\n\nadvanced\n\nfor information about advanced use of RPN and, in particular, this command-line calculator.
+    Advanced help: how to use this calculator: ada.
+    
+Type:
+
+    advanced
+    
+for information about advanced use of RPN and, in particular, this command-line calculator.
     """
     txt = """ 
 =========== HELP: HOW TO USE ada ============
@@ -2197,7 +2286,7 @@ or more detailed information by typing:
 
     h [command]
 
-where [command] is any command in the lists of commands, operations, and shortcuts. All of the common calculator operations are available, either as shortcuts or commands.
+where [command] is any command in the lists of commands, operations, and shortcuts. All of the common calculator operations are available.
 
 Numbers entered in a sequence MUST be separated by spaces, for obvious reasons. A single shortcut can follow a number directly, but sequences of shortcuts or operations using words must use spaces. For examples of valid and invalid expressions, put the following numbers on the stack:
 
@@ -2229,7 +2318,7 @@ for more detailed information.
 
 1. Memory register, where you can store, add, subtract, and recall numbers. Access these registers by their number. [related commands: M+, M-, MR, MD, and ML]
 
-2. User-defined constants, where you can store constants, or even whole expressions, by name. These are saved between sessions. [related commands: user, usercon, ue, userexpr]
+2. User-defined constants, where you can store constants, or even whole expressions, by name. These are saved between sessions. [related commands: user, usercon]
 
 3. Conversion between RGB and hex colors, including alpha values. [related commands: alpha, rgb, and hex]
 
@@ -2289,16 +2378,15 @@ Example:
 
 if __name__ == '__main__':
 
-    version_num = '2.3 rev2019-06-03 07:42 PM'
+    version_num = '2.4 rev201906071339'
 
-    print('ada - an RPN calculator ' + version_num[0:3])
+    print('ada ' + version_num[0:3] +  ' - an RPN calculator')
 
     # initialize the x, y, z, and t registers, and other global variables
     stack, entered_value = [0.0], 0.0
     lastx_list, mem, tape = [0.0], {}, []
     letters = ascii_letters + '_' + ':'
     lower_letters = ascii_lowercase + '_' + ':'
-    userexpr = ''
 
     # initial setup by saving default settings to config.json
     # if the file already exists, then put contents in {settings}
@@ -2307,12 +2395,14 @@ if __name__ == '__main__':
             settings = json.load(file)
     except FileNotFoundError:
         settings = {
+            'show_menu': 'Y',
             'dec_point': '4',
             'separator': ',',
             'show_tape': 'N',
             'show_tips': 'Y',
             }
-        with open('config.json', 'w') as file:
+        # if config.json does not exist, create it
+        with open('config.json', 'w+') as file:
             file.write(json.dumps(settings, ensure_ascii=False))
         
     # menu gets printed on screen 4 items to a line
@@ -2326,33 +2416,33 @@ if __name__ == '__main__':
     op1 = {
         "": ('', ''),
         "====": ('', '==== GENERAL ==========================='),
-        "abs": (absolute, "absolute value of x"),
+        "abs": (absolute, "absolute value of x:"),
         "ceil": (ceil, "6.3->7"),
-        "!": (factorial, "x factorial"),
+        "!": (factorial, "x: factorial"),
         "floor": (floor, "6.9->6"),
-        "log": (log, "log10(x)"),
-        "n": (negate, "negative of x"),
+        "log": (log, "log10(x:)"),
+        "n": (negate, "negative of x:"),
         # "negate": (negate, "Get the negative of x."),
         "pi": (pi, "pi"),
-        "rand": (random_number, 'random int between x and y.'),
-        "round": (round_y, 'round y by x'),
-        "sqrt": (square_root, "sqrt(x)"),
+        "rand": (random_number, 'random int between x: and y:.'),
+        "round": (round_y, 'round y: by x:'),
+        "sqrt": (square_root, "sqrt(x:)"),
         " ": ('', ''),
         " ====": ('', '==== TRIGONOMETRY ======================'),
-        "cos": (cos, "cos(x) -- x must be radians"),
-        "sin": (sin, "sin(x) -- x must be radians"),
-        "tan": (tan, "tan(x) -- x must be radians"),
-        "acos": (acos, "acos(x) -- x must be radians"),
-        "asin": (asin, "asin(x) -- x must be radians"),
-        "atan": (atan, "atan(x) -- x must be radians"),
-        "deg": (deg, "convert angle x in radians to degrees"),
-        "rad": (rad, "convert angle x in degrees to radians"),
+        "cos": (cos, "cos(x:) -- x: must be radians"),
+        "sin": (sin, "sin(x:) -- x: must be radians"),
+        "tan": (tan, "tan(x:) -- x: must be radians"),
+        "acos": (acos, "acos(x:) -- x: must be radians"),
+        "asin": (asin, "asin(x:) -- x: must be radians"),
+        "atan": (atan, "atan(x:) -- x: must be radians"),
+        "deg": (deg, "convert angle x: in radians to degrees"),
+        "rad": (rad, "convert angle x: in degrees to radians"),
         "  ": ('', ''),
         "  ====": ('', '==== CONVERSIONS ======================='),
-        'bin': (convert_to_binary, 'Convert x from decimal to binary.'),
-        "dec": (convert_to_decimal, 'Convert x from binary to decimal.'),
-        "dechex": (convert_dec_hex, 'Convert x from decimal to hex.'),
-        "hexdec": (convert_hex_dec, 'Convert x from hex to decimal.'),
+        'decbin': (convert_dec_to_bin, 'Convert x: from decimal to binary.'),
+        "bindec": (convert_bin_to_dec, 'Convert x: from binary to decimal.'),
+        "dechex": (convert_dec_to_hex, 'Convert x: from decimal to hex.'),
+        "hexdec": (convert_hex_to_dec, 'Convert x: from hex to decimal.'),
         'cm': (cm, 'Convert inches to centimeters.'),
         'inch': (inch, 'Convert centimeters to inches.'),
         'cf': (ctof, 'Convert centigrade to Fahrenheit.'),
@@ -2366,13 +2456,13 @@ if __name__ == '__main__':
     op2 = {
         "    ": ('', ''),
         "====": ('', '==== STANDARD OPERATORS ================'),
-        "+": (add, "y + x"),
-        "-": (sub, "y - x"),
-        "*": (mul, "y * x"),
-        "x": (mul, "y * x"),
-        "/": (truediv, "y / x"),
+        "+": (add, "y: + x:"),
+        "-": (sub, "y: - x:"),
+        "*": (mul, "y: * x:"),
+        "x": (mul, "y: * x:"),
+        "/": (truediv, "y: / x:"),
         "%": (mod, "remainder from division"),
-        "^": (pow, "y ** x"),
+        "^": (pow, "y: ** x:"),
     }
 
     # general commands that provide function beyond math operators
@@ -2385,24 +2475,24 @@ if __name__ == '__main__':
         "     ": ('', ''),
         " ====": ('', '==== COLOR ============================='),
         'alpha': (get_hex_alpha, 'Hex equivalent of RGB alpha value.'),
-        'hex': (rgb_to_hex, 'Convert rgb color (z, y, x) to hex color.'),
+        'hex': (rgb_to_hex, 'Convert rgb color (z:, y:, x:) to hex color.'),
         "list_alpha": (list_alpha, "List all alpha values."),
         'rgb': (hex_to_rgb, 'Convert hex color to rgb.'),
         "      ": ('', ''),
         "  ====": ('', '==== HELP =============================='),
+        'help': (help, 'How to get help.'),
         "index": (manual, "Menu to access parts of the manual."),
+        "basics": (basics, "The basics of RPN."),
+        "advanced": (advanced, 'Advanced help: how to use ada.'),
         "com": (print_commands, "List all commands and math operations."),
         "math": (print_math_ops, "List math operations."),
         "con": (print_constants, 'List constants and conversions.'),
-        'help': (help, 'Getting help.'),
-        "basics": (basics, "The basics of RPN."),
-        "advanced": (advanced, 'Advanced help: how to use ada.'),
         "short": (print_shortcuts, 'Available shortcut functions.'),
         "       ": ('', ''),
         "   ====": ('', '==== MEMORY REGISTERS =================='),
-        "M+": (mem_add, 'Add x to y memory register.'),
-        "M-": (mem_sub, 'Subtract x from y memory register.'),
-        "MR": (mem_recall, 'Put x register value on stack.'),
+        "M+": (mem_add, 'Add x: to y: memory register.'),
+        "M-": (mem_sub, 'Subtract x: from y: memory register.'),
+        "MR": (mem_recall, 'Put x: register value on stack.'),
         "MD": (mem_del, 'Delete one or all memory registers.'),
         "ML": (mem_list, 'List elements of memory register.'),
         "        ": ('', ''),
@@ -2414,16 +2504,15 @@ if __name__ == '__main__':
         "list": (list_stack, "Show the entire stack."),
         "rolldown": (roll_down, "Roll stack down."),
         "rollup": (roll_up, "Roll stack up."),
-        "split": (split_number, "Splits x into integer and decimal parts."),
+        "split": (split_number, "Splits x: into integer and decimal parts."),
         'stats': (stats, 'Summary stats (non-destructive).'),
-        "swap": (swap, "Swap x and y values on the stack."),
+        "swap": (swap, "Swap x: and y: values on the stack."),
         'tape': (print_tape, "Display tape from current session."),
-        "trim": (trim_stack, 'Remove stack, except the x, y, z, and t.'),
+        "trim": (trim_stack, 'Remove stack, except the x:, y:, z:, and t:.'),
         "         ": ('', ''),
         "     ====": ('', '==== USER-DEFINED ======================'),
         "usercon": (print_dict, "List user-defined constants."),
         "user": (define_constant, 'Add/edit user-defined constant.'),
-        "userexpr": (get_user_expression, 'Retrieve user-defined expression.'),
     }
 
     # http://www.onlineconversion.com
@@ -2443,14 +2532,13 @@ if __name__ == '__main__':
     shortcuts = {
         'c': (clear, 'Clear all elements from the stack.'),
         'd': (drop, 'Drop the last element off the stack.'),
-        'ue': (get_user_expression, "Get user expression from file."),
         'h': (help, 'Help for a single command.'),
-        'n': (negate, 'Negative of x.'),  
+        'n': (negate, 'Negative of x:'),
         'q': ('', 'Quit.'),
-        'r': (round_y, 'round y by x'),
+        'r': (round_y, 'round y by x:'),
         'rd': (roll_down, 'Roll the stack down.'),  
         'ru': (roll_up, 'Roll the stack up.'),  
-        's': (swap, 'Swap x and y values on the stack.'),
+        's': (swap, 'Swap x: and y: values on the stack.'),
             }
 
     # keys are "percent transparency" and values are "alpha code" for hex colors; 0% is transparent; 100% is no transparency
@@ -2488,7 +2576,7 @@ if __name__ == '__main__':
     except FileNotFoundError:
         user_dict = {}
 
-    stack = RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr)
+    stack = RPN(stack, user_dict, lastx_list, mem, settings, tape)
 
     # the following line if for the developer only
     # stack = print_all_functions(stack, user_dict)
