@@ -24,7 +24,9 @@ $ git push origin develop
 
 # todo -- the .exe file created by pyinstaller does not read files; it creates config.json and constants.json, but doesn't read them after creating them
 
-# todo -- fix parsing of expression obtained from user-defined constants; execution was leaving values on the stack
+# // -- fix parsing of expression obtained from user-defined constants; execution was leaving values on the stack
+
+# // -- in calculator_settings, change prompts to ask for ON/OFF; <enter> without a choice changes a setting to default
 
 
 import json
@@ -56,8 +58,8 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
         stack = print_register(stack, settings)
 
         # generate the menu
-        print()
         if settings['show_menu'] == 'Y':
+            print()
             for i in range(0, len(menu), 4):
                 m = ''.join(menu[i:i+4])
                 print(m)
@@ -721,15 +723,15 @@ def calculator_settings(settings):
             "\n          Display <m>enu\
             \n      Set decimal <p>oint \
             \nSet thousands <s>eparator \
-            \n              Show <tape> \
+            \n              Show <t>ape \
             \n                   <E>xit\n").lower()
         if not s:
             break
 
         # change menu setting
         if s[0].strip().lower() == 'm':
-            m = input('Turn menu on? (Y/N) ').upper()
-            if m == 'N':
+            m = input('Calculator menu (ON/OFF) ')
+            if m.strip().upper() == 'OFF':
                 settings['show_menu'] = 'N'
             else:
                 settings['show_menu'] = 'Y'
@@ -757,6 +759,13 @@ def calculator_settings(settings):
                 except:
                     print('Usage: p[number decimal points]')
 
+        # user entered number + <p>
+        elif s[-1].strip().lower() == 'p':
+            try:
+                settings['dec_point'] = str(int(s[:-1])).strip()
+            except:
+                print('Usage: p[number decimal points]')
+
         # change thousands separator setting
         elif s.strip() == 's':
             separator = input("Thousands separator ('none' or ','): ")
@@ -766,9 +775,9 @@ def calculator_settings(settings):
                 settings['separator'] = ','
         
         # change whether or not tape displays
-        elif s.strip() == 'tape':
-            tape = input('Show tape persistently? (Y/N): ') 
-            if tape.strip().upper() == 'Y':
+        elif s.strip() == 't':
+            tape = input('Show tape persistently? (ON/OFF): ') 
+            if tape.strip().upper() == 'ON':
                 settings['show_tape'] = 'Y'
             else:
                 settings['show_tape'] = 'N'
