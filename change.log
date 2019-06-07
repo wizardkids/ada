@@ -52,3 +52,11 @@ rev 2019-06-06
         -- fixed length of first and last "line" in txt
         -- removed the dashed lines in the docString
     -- rearranged order of items in the HELP section of {commands}
+    -- at line 89, add section to handle entry of user-defined constant and expression names; this allowed
+            -- deletion of the section beginning at line 88: "if ('ue ' in entered_value[1:] or 'userexpr ' in entered_value[1:]):"
+            -- removal of get_user_expression() and its shortcuts
+    -- add setting to {settings} that allows user to turn calculator menu on or off
+    -- remove get_user_expression() and shortcuts referring to item
+    -- modify the help for define_constant()
+    -- change version number from 2.3 to 2.4
+    -- change revision datetime format from "2019-06-07 12:55 AM" to "201906071255" using military time

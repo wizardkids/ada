@@ -6,21 +6,33 @@ Command line RPN calculator that performs a variety of common functions.
 
 """
 
-# ! Best info on GIT branching strategy:
-# ? https://nvie.com/posts/a-successful-git-branching-model/
+# version_num is in "if __name__ == '__main__':" 
+    # ? -- versioning: x.y z
+    # ?    Where:
+    # ?        x = main version number
+    # ?        y = feature number, 0-9. Increase this number if the change contains new features with or without bug fixes.
+    # ?        z = revision datetime
 
-# todo -- fix the version number when you move to the develop branching
-    # * how are you going to handle major.minor rev datetime changes?
+# ! Best info on GIT branching strategy:
+    # ? https://nvie.com/posts/a-successful-git-branching-model/
+"""
+MANAGING A MERGE TO DEVELOP:
+$ git checkout develop
+$ git merge --no-ff features
+$ git push origin develop
+"""
+
+# // -- fix the version number when you move to the develop branching
+# * how are you going to handle major.minor rev datetime changes?
     # * how are you going to handle revision datetimes?
 
 # // -- changing a setting in {settings} does not commit the change until after a restart
 
 # // - I can create a usercon names "one" but when I type <one> the value of "one" does not appear in x:. If I type <ue one>, then the value appears in x:. This is not how I want it to work.
     # // process_item() is putting the whole expression on the stack, rather than parsing it into individual items
+# // -- create a setting in {settings} that can turn the menu on or off; once a user get's accustomed to ada, a menu is superfluous and simply takes up space.
 
 # todo -- the .exe file created by pyinstaller does not read files; it creates config.json and constants.json, but doesn't read them after creating them
-
-# todo -- create a setting in {settings} that can turn the menu on or off; once a user get's accustomed to ada, a menu is superfluous and simply takes up space.
 
 
 import json
@@ -53,9 +65,10 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
 
         # generate the menu
         print()
-        for i in range(0, len(menu), 4):
-            m = ''.join(menu[i:i+4])
-            print(m)
+        if settings['show_menu'] == 'Y':
+            for i in range(0, len(menu), 4):
+                m = ''.join(menu[i:i+4])
+                print(m)
 
         # print user tip, optionally
         if settings['show_tips'] == 'Y':
@@ -84,33 +97,6 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape, userexpr):
         # ==========================================================
         # HERE, WE START INITIAL PROCESSING OF entered_value
         # ==========================================================
-
-        # if the user wants a user-defined expression, then 
-        # (1) they entered "userexpr [name]" or "ue [name]" so we need the named expression as the entered_value
-        # (2) they need to enter ue [name] as a single command
-        
-        if ('ue ' in entered_value[1:] or 'userexpr ' in entered_value[1:]):
-            print('='*45)
-            print('ue [expression name] or userexpr [expression name]\nmust be entered alone on the command line.')
-            print('='*45)
-            continue
-        elif ('ue' in entered_value[0:] or 'userexpr' in entered_value[0:]):
-            if entered_value[0:8] == 'userexpr' or entered_value[0:2] == 'ue':
-                item = entered_value[9:] if entered_value[0:8] == 'userexpr' else entered_value[3:]
-                # "throw away" what the user entered and get the requested expression
-                if not item:
-                    print('='*45)
-                    print('You must enter [expression name].')
-                    print('='*45)
-                    continue
-                entered_value = get_user_expression(stack, item)
-                if not entered_value:
-                    print('='*45)
-                    print('You must enter [expression name].')
-                    print('='*45)
-                    continue
-
-                print()
 
         # if item is the name of a user-defined constant, decide if it's a number or if it is an expression needing to be parsed
         if entered_value in user_dict.keys():
@@ -574,18 +560,11 @@ def print_dict(stack):
     """
     List user-defined constants and expressions. 
     
-(1) To use a user-define constant, type its name to put the value of the constant on the stack.
-
-(2) To use (execute) a user-defined expression, type:
-
-    ue [expression name] or userexpr [expression name]
-    
+(1) To use a user-define constant or expression, type its name. Either the constant's value will be placed on the stack or the expression will be executed.
 
 Related commands:
     
     usercon --> to list the current user-defined constants. 
-
-    h ue --> for help on entering expressions, including the use of register names (e.g., x:, y:) in expressions.
 
     user --> to create user-defined (named) constants and expressions
     """
@@ -720,6 +699,7 @@ def calculator_settings(settings):
     except FileNotFoundError:
         # save default settings to config.json:
         settings = {
+                'show_menu': 'Y',
                 'dec_point': '4',
                 'separator': ',',
                 'show_tape': 'N',
@@ -732,7 +712,9 @@ def calculator_settings(settings):
         # print the current settings
         print('\n', '='*13, ' CURRENT SETTINGS ', '='*13, sep='')
         for k, v in settings.items():
-            if k == "dec_point":
+            if k == 'show_menu':
+                print('     Show menu:', v)
+            elif k == "dec_point":
                 print('Decimal points:', v)
             elif k == 'separator':
                 if settings['separator'] == '':
@@ -749,15 +731,24 @@ def calculator_settings(settings):
 
         # print a menu of setting options
         s = input(
-            "\n     Set decimal <p>oint \
+            "\n          Display <m>enu\
+            \n      Set decimal <p>oint \
             \nSet thousands <s>eparator \
             \n              Show <tape> \
             \n                   <E>xit\n").lower()
         if not s:
             break
 
+        # change menu setting
+        if s[0].strip().lower() == 'm':
+            m = input('Turn menu on? (Y/N) ').upper()
+            if m == 'N':
+                settings['show_menu'] = 'N'
+            else:
+                settings['show_menu'] = 'Y'
+
         # change decimal point setting
-        if s[0].strip().lower() == 'p':
+        elif s[0].strip().lower() == 'p':
             # usage example: enter <p8> or <p 8> to set decimal points to 8 places
             # enter <p> to generate step-by-step process
             # entering <map> or <pee> generates usage help
@@ -1285,18 +1276,53 @@ def define_constant(stack, user_dict):
 
     Example (2):
         (y: x: - ) 2 / 140 +
+
+The latter example show use of register names in an expression. Here is how to construct these types of expression. Let's create this expression:
+
+    (x: y: +) y: *
+    
+NOTE: Keep in mind that during evaluation of the expression, the stack contents change as operations are executed. We'll see this happen in this example...
+
+-- Let's put the following values on the stack.
+
+    z:          7.0000
+    y:          3.0000
+    x:          1.0000
+
+-- When the expression is run, the + operator adds x: and y:. y: is removed and x: is replaced with the result: 4. z: drops down to the y: register:
+
+    z:          0.0000
+    y:          7.0000
+    x:          4.0000
+
+-- Then the current x: and y: are multiplied and the result, 28, is put in the x: register:
+
+    z:          0.0000
+    y:          0.0000
+    x:         28.0000
+
+NOTE: 
+(1) The non-obvious point is that, in an expression, the registers (e.g., "x:") are not variable names, but refer to the stack at THAT point in the expression's execution.
+
+(2) Simple use of register names can save a lot of time when repeating simple calculations, such as getting the mid-point between two values. Create and save the following expression, say as "mid". 
+
+    y: x: s dup rd - 2 / s d +
+
+Put any two values on the stack, and run the expression by typing:
+
+    mid
+
+An easy way to get the expression: use the command line to do what you need, then copy the steps from the tape. Format into one line, if needed, and then paste in the VALUE field when you create the user-defined expression using:
+
+    user
+
+(2) Memory registers can act as variables, and may be better suited for some complicated expressions. See help for M+, M-, MR, and ML.
     
 Type:
     
     usercon
 
 to list the current user-defined constants. 
-
-Type:
-
-    h ue
-
-for help on entering expressions using register names (e.g., x:, y:)
     """
     try:
         with open("constants.json", 'r') as file:
@@ -1409,7 +1435,7 @@ for help on entering expressions using register names (e.g., x:, y:)
     return stack, user_dict
 
 
-def get_user_expression(stack, item):
+def get_user_expression_NOT_USED(stack, item):
     """
     Get a user-defined expression from the file containing user-defined constants. Execute the expression and place the result on the stack. This operation is particularly useful if you need to reuse a complicated expression with different stack values, making this a rudimentary programmable calculator.
     
@@ -1425,13 +1451,7 @@ Usage:
     
 Or, you can use x:, y:, z:, t: in your expression to refer to specific registers in the stack.
 
-(2) To use your expression, put any necessary values on the stack, then...
-
-(3) Type:
-
-    ue [expression name] or userexpr [expression name]
-    
-to run the named user expression.
+(2) To use your expression, type the expressions name
 
 Example, using register names:
 
@@ -1464,9 +1484,9 @@ NOTE:
 
     y: x: s dup rd - 2 / s d +
 
-Put any two values on the stack, and run the expression using:
+Put any two values on the stack, and run the expression by typing:
 
-    ue mid
+    mid
 
 An easy way to get the expression: use the command line to do what you need, then copy the steps from the tape. Format into one line, if needed, and then paste in the VALUE field when you create the user-defined expression using:
 
@@ -2352,7 +2372,7 @@ Example:
 
 if __name__ == '__main__':
 
-    version_num = '2.3 rev2019-06-03 07:42 PM'
+    version_num = '2.4 rev??'
 
     print('ada - an RPN calculator ' + version_num[0:3])
 
@@ -2370,6 +2390,7 @@ if __name__ == '__main__':
             settings = json.load(file)
     except FileNotFoundError:
         settings = {
+            'show_menu': 'Y',
             'dec_point': '4',
             'separator': ',',
             'show_tape': 'N',
@@ -2486,7 +2507,6 @@ if __name__ == '__main__':
         "     ====": ('', '==== USER-DEFINED ======================'),
         "usercon": (print_dict, "List user-defined constants."),
         "user": (define_constant, 'Add/edit user-defined constant.'),
-        "userexpr": (get_user_expression, 'Retrieve user-defined expression.'),
     }
 
     # http://www.onlineconversion.com
@@ -2506,7 +2526,6 @@ if __name__ == '__main__':
     shortcuts = {
         'c': (clear, 'Clear all elements from the stack.'),
         'd': (drop, 'Drop the last element off the stack.'),
-        'ue': (get_user_expression, "Get user expression from file."),
         'h': (help, 'Help for a single command.'),
         'n': (negate, 'Negative of x:'),
         'q': ('', 'Quit.'),
