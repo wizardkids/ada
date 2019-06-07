@@ -90,8 +90,6 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape):
         # if item is the name of a user-defined constant...
         if entered_value in user_dict.keys():
             # get the user-defined constant/expression, itself
-# todo -- this next line is not getting the update user_dict after
-# todo -- adding a new expression, or modifying an existing one
             entered_value = str(user_dict[entered_value][0])
 
         # if the entered_value begins with a '#', then it's a hex number, requiring special handling
@@ -99,9 +97,15 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape):
             # then this is a hex number to be converted to rgb
             stack = hex_to_rgb(stack, entered_value)
         
-         # if entered_value is a hexadecimal value, beginning wiht '0x'
+         # if entered_value is a hexadecimal value, beginning with '0x'
         elif entered_value[0:2] == '0x':
-            stack = convert_hex_to_dec(stack, entered_value[2:])
+            stack = convert_hex_to_dec(stack, entered_value.split(' ')[0][2:])
+            continue
+
+        # if entered_value is a binary number beginning with "0b"
+        elif entered_value[0:2] == '0b':
+            stack = convert_bin_to_dec(stack, entered_value.split(' ')[0][2:])
+            continue
         
         # otherwise, we're going to have to parse what the user entered
         else:
@@ -1161,19 +1165,19 @@ def math_op2(stack, item):
 
 # === NUMBER SYSTEM CONVERSIONS =====
 
-def convert_bin_to_dec(stack):
+def convert_bin_to_dec(stack, bin_value):
     """
     Convert x: from binary to decimal. Replaces binary value in x: with the decimal value.
     
 Example:
-    1000 dec --> x: 8
+    0b1000 dec --> x: 8
     """
     if stack[0] < 0:
         print('='*45)
         print('Cannot find binary equivalent of a negative number.')
         print('='*45)
         return stack
-    stack[0] = int('0b' + str(int(stack[0])), 2)
+    stack[0] = int(bin_value, 2)
     return stack
 
 
@@ -2096,7 +2100,7 @@ def mem_list(stack, mem):
 
     print('\n', '='*15, ' MEMORY STACK ', '='*16, sep='')
     for k, v in sorted_mem.items():
-        print('Register ', k, ': ', v, sep='')
+        print('Register ', int(k), ': ', v, sep='')
     print('='*45, sep='')
 
 
@@ -2104,7 +2108,7 @@ def mem_del(stack, mem):
     """
     Delete one, or a range, of memory registers. If x: (or y:) is not an integer, it will be converted to the next higher integer value to determine the target memory register for this operation. When deleting a range of registers, the order of the register numbers on the stack does not matter.
 
-NOTE: Make sure the stack is clear before entering register numbers since, pending confirmation, this operation uses whatever numbers appear in x: and y: 
+NOTE: Make sure the stack is clear before entering register numbers since, pending confirmation, this operation uses whatever numbers appear in x: and y: as the range of registers to delete.
 
 Example (1):
     1 MD --> deletes #1 memory register
@@ -2123,6 +2127,8 @@ to inspect (list) the memory registers.
     """
     register1, register2 = 0, 0
 
+    # delete a single register: register2
+    # delete a range: between register1 and register2, inclusive
     if math.ceil(stack[0]) >= 1:
         register1 = math.ceil(stack[0])
     else:
@@ -2138,31 +2144,35 @@ to inspect (list) the memory registers.
         print('Register numbers are positive integers, only.')
         print('='*45)
 
-    # make sure the register exists in {mem}
-
     # make sure register2 is >= register1
     if register1 > register2:
         register1, register2 = register2, register1
 
-    # if you only want to delete 1 register, then register1 will be -0-
+    # if you only want to delete 1 register, then register1 will be -0- and we will delete register2
     if register1 == 0:
         print('Are you sure you want to delete')
         confirm = input('register ' + str(register2) + '? (Y/N) ')
         if confirm.upper() == 'N':
+            stack.pop(0)
             return stack, mem
         if register2 in mem:
+            stack.pop(0)
             del mem[register2]
         
     else:
         print('Are you sure you want to delete')
         confirm = input('register ' + str(register1) + ' to register ' + str(register2) + '? (Y/N) ')
         if confirm.upper() == 'N':
+            stack.pop(0)
+            stack.pop(0)
             return stack, mem
-        
-        # remove registers between register1 and register 2, inclusive
-        for i in range(register2, register1-1, -1):
-            if i in mem:
-                del mem[i]
+        else:
+            # remove registers between register1 and register2, inclusive
+            for i in range(register2, register1-1, -1):
+                if i in mem:
+                    del mem[i]
+            stack.pop(0)
+            stack.pop(0)
         
     return stack, mem
 
@@ -2388,7 +2398,7 @@ if __name__ == '__main__':
 
     version_num = '2.4 rev??'
 
-    print('ada - an RPN calculator ' + version_num[0:3])
+    print('ada ' + version_num[0:3] +  ' - an RPN calculator')
 
     # initialize the x, y, z, and t registers, and other global variables
     stack, entered_value = [0.0], 0.0
