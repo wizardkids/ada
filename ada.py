@@ -22,10 +22,6 @@ $ git merge --no-ff features
 $ git push origin develop
 """
 
-# todo -- the .exe file created by pyinstaller does not read files; it creates config.json and constants.json, but doesn't read them after creating them
-
-# todo -- add an .exe file to develop
-# todo -- to readme.md, add a bit about installation, including installing ada.py, ada.exe, or using pyinstaller on the .py file
 
 import json
 import math
