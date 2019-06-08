@@ -2378,7 +2378,7 @@ Example:
 
 if __name__ == '__main__':
 
-    version_num = '2.4 rev201906071339'
+    version_num = '2.4 rev474'
 
     print('ada ' + version_num[0:3] +  ' - an RPN calculator')
 
