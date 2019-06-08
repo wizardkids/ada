@@ -1,14 +1,14 @@
 # **_ada_ - a command-line RPN calculator**
 
 ## **Why a command-line calculator?**
-...because keyboard entry is so much faster than pointing and clicking or tapping buttons on a touch screen.</span>
+...because keyboard entry is so much faster than pointing and clicking or tapping buttons on a touch screen.
 
 ## **Why RPN?** 
 ...because hitting an equals key is so 1995 and using RPN is demonstrably faster than a conventional calculator.
 
 **_ada's exclusive goal_** is to provide an app that loads fast, executes fast, and is not bloated with capabilities that you will never use because there's Excel, Jupyter Notebooks, and SAS/STAT. For example, try this with any other kind of calculator:
 
-    4 16 s 2 ^ 4 / /
+   `4 16 s 2 ^ 4 / /`
 
 With no more than single keys, and typing a single expression, **_ada_** executes the line to result in x: 4
 
