@@ -553,11 +553,9 @@ def print_dict(stack):
     """
     List user-defined constants and expressions. 
     
-(1) To use a user-define constant or expression, type its name. Either the constant's value will be placed on the stack or the expression will be executed.
+To use a user-defined constant or expression, type its name. Either the constant's value will be placed on the stack or the expression will be executed.
 
-Related commands:
-    
-    usercon --> to list the current user-defined constants. 
+Related command:
 
     user --> to create user-defined (named) constants and expressions
     """
@@ -1306,7 +1304,7 @@ NOTE: Keep in mind that during evaluation of the expression, the stack contents 
 NOTES: 
 (1) The non-obvious point is that, in an expression, the registers (e.g., "x:") are not variable names, but refer to the stack at THAT point in the expression's execution.
 
-(2) Simple use of register names can save a lot of time when repeating simple calculations, such as getting the mid-point between two values. Create and save the following expression, say as "mid". 
+(2) Register names can save a lot of time when repeating simple calculations, such as getting the mid-point between two values. Create and save the following expression, say as "mid". 
 
     y: x: s dup rd - 2 / s d +
 
@@ -1314,18 +1312,18 @@ Put any two values on the stack, and run the expression by typing:
 
     mid
 
-An easy way to get the expression: use the command line to do what you need, then copy the steps from the tape. Format into one line, if needed, and then paste in the VALUE field when you create the user-defined expression using:
+An easy way to get an expression: use the command line to do what you need, then copy the steps from the tape. Format into one line, if needed, and then paste the expression into the VALUE field when you create the user-defined expression using:
 
     user
 
-(3) User-define constant/expression names cannot be used as part of a sequence. For example:
+(3) User-define constant/expression names cannot be used as part of a sequence on the command line. For example:
 
     100 50 mid  -- invalid
 
     100 50      -- put values on stack first
     mid         -- valid
 
-(4) Memory registers can act as variables, and may be better suited for some complicated expressions. See help for M+, M-, MR, and ML.
+(4) Memory registers can act as variables, and may be better suited for some complicated expressions. See help for M+, M-, MR, MD, and ML.
     
 Type:
     
@@ -1737,10 +1735,10 @@ def swap(stack):
     Swap x: and y: values on the stack.
     
 Example (1): 
-    3 4 swap --> y: 4  x: 3
+    y: 3  x: 4 swap --> y: 4  x: 3
     
 Example (2):
-    4 3 s --> y: 3  x: 4
+    y: 4  x: 3 s --> y: 3  x: 4
 
 Note that example (2) uses a shortcut. To list shortcuts, type: 
 
@@ -1752,7 +1750,7 @@ Note that example (2) uses a shortcut. To list shortcuts, type:
 
 def trim_stack(stack):
     """
-    Remove all elements on the stack except the x:, y:, z:, and t: registers.
+    Remove all elements on the stack except x:, y:, z:, t:.
     
 Note: You can use 
 
@@ -1820,7 +1818,9 @@ Example:
 
 def get_hex_alpha(stack):
     """
-    Put a percent alpha value (between 0 and 100) in x:; this operation returns the hex equivalent, reported as a string.
+    Put a percent alpha value (between 0 and 100) in x:
+    
+    This operation returns the hex equivalent, reported as a string.
 
 Example:
     75 alpha --> BF
@@ -1878,23 +1878,39 @@ def lengths(stack):
     Convert a decimal measurement to a fraction. For example, you can easily determine what is the equivalent measure of 2.25 inches in eighths. Very handy for woodworking.
     
 Example (1)
-    2.25 8 i --> t: 2.25  z: 2  y: 2  x: 8
-    
-Translation, reading z-->x:
-    2.25 inches = 2 2/8"
-    
-Example (2)
-    3.65 32 i --> t: 3.65  z: 3  y: 20.8  x: 32
-    
-Translation,, reading z-->x:
-    3.65 inches = 3 20.8/32"
-    
-Example (3)
-    Enter: 3.25 then 8i
-    Returns: t,z,y,z... 3.25, 3, 2, 8
+    2.25 8 i 
 
-Translation, reading z-->x:
-    3.25" =  3 2/8"
+        t:          2.2500
+        z:          2.0000
+        y:          2.0000
+        x:          8.0000
+
+Translation:
+    2.25" equals 2 and 2/8"
+
+=================================================
+
+Example (2)
+    3.65 32 i 
+    
+        t:          3.6500
+        z:          3.0000
+        y:         20.8000
+        x:         32.0000
+
+    3.65" equals 3 20.8/32"
+    
+=================================================
+
+Example (3)
+    3.25 64i
+
+        t:          3.2500
+        z:          3.0000
+        y:         16.0000
+        x:         64.0000
+
+    3.25" equals 3 16/64"
     """
     
     # Convert a decimal measurement to 1/8", 1/16", 1/32", or 1/64"
@@ -1917,7 +1933,9 @@ Translation, reading z-->x:
 
 def ftoc(stack):
     """
-    Convert temperature from F to C.\n\nExample:
+    Convert temperature from F to C.
+    
+Example:
         
     212 fc --> x: 100
     """
@@ -1931,7 +1949,9 @@ def ftoc(stack):
 
 def ctof(stack):
     """
-    Convert temperature from C to F.\n\nExample:
+    Convert temperature from C to F.
+    
+Example:
         
     100 cf --> x: 212
     """
@@ -1969,7 +1989,7 @@ def og(stack):
 
 def mem_add(stack, mem):
     """
-    Add x: to y: memory register. 
+    Add x: to the y: memory register. 
     
 Example: 
     1 453 
@@ -2015,13 +2035,13 @@ to inspect (list) the memory registers.
 
 def mem_sub(stack, mem):
     """
-    Subtract x: from y: memory register. If y: is not an integer, it will be converted to the next higher integer value to determine the target memory register for this operation.
+    Subtract x: from the y: memory register.
     
 Example:
-    1 12 
+    3 12 
     M- 
     
-Subtracts 12 from the current value of the #1 memory register.
+Subtracts 12 from the current value of the #3 memory register.
 
 Type:
 
@@ -2061,12 +2081,12 @@ to inspect (list) the memory registers.
 
 def mem_recall(stack, mem):
     """
-    Puts the value in the x: register value on the stack. If x: is not an integer, it will be converted to the next higher integer value to determine the target memory register for this operation.
+    Puts the value in the x: memory register on the stack.
     
 Example: 
-    3 MR
+    12 MR
     
-puts the value of the #3 memory register on the stack.
+puts the value of the #12 memory register on the stack.
 
 Type:
 
@@ -2109,7 +2129,7 @@ def mem_list(stack, mem):
 
 def mem_del(stack, mem):
     """
-    Delete one, or a range, of memory registers. If x: (or y:) is not an integer, it will be converted to the next higher integer value to determine the target memory register for this operation. When deleting a range of registers, the order of the register numbers on the stack does not matter.
+    Delete one, or a range, of memory registers. When deleting a range of registers, the order of the register numbers in x: and y: does not matter. Deletion is inclusive of the numbers you enter.
 
 NOTE: Make sure the stack is clear before entering register numbers since, pending confirmation, this operation uses whatever numbers appear in x: and y: as the range of registers to delete.
 
@@ -2196,7 +2216,7 @@ to get information about a specific command.
 
     txt = """
 =================== HELP ====================
-<basics> : the basics of RPN
+  <basics> : the basics of RPN
 <advanced> : how to use THIS calculator
 
 You can also type:
@@ -2235,6 +2255,8 @@ Type:
 
 Result:
 
+    t:          0.0000
+    z:          0.0000
     y:          3.0000
     x:          4.0000
             
@@ -2396,7 +2418,7 @@ Example:
 
 def get_revision_number():
     """
-    Manually run this function to get a revision number.
+    Manually run this function to get a revision number by uncommenting the first line of code under "if __name__ == '__main__':"
     """
     from datetime import datetime
 
@@ -2404,7 +2426,8 @@ def get_revision_number():
     tday = datetime.today()
     revision_delta = datetime.today() - start_date
 
-    print(revision_delta.days)
+    print("\nREVISION NUMBER:", revision_delta.days)
+    print('This is the number of days since 2/18/2018,\n', 'the date that the first version of this\n', 'calculator was launched.\n\n', sep='')
     return None
 
 
@@ -2412,7 +2435,7 @@ def get_revision_number():
 
 if __name__ == '__main__':
 
-    # get_revision_number()
+    get_revision_number()
 
     version_num = '2.4 rev474'
 
