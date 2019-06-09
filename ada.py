@@ -65,7 +65,7 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape):
             settings['show_tips'] = 'N'
 
         # get the command line entry from the user
-        entered_value = input('\n').lstrip().rstrip()
+        entered_value = input('').lstrip().rstrip()
         
         # make sure parentheses are balanced before proceeding
         lst = list(entered_value)
@@ -173,6 +173,10 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape):
 
                 ndx += 1
 
+        # save this item as lastx_list; retrieved by get_lastx()
+        lastx_list = [lastx_list[-1]]
+        lastx_list.append(stack[0])
+
         if quit:
             # save {settings} to disk before quitting
             with open('config.json', 'w+') as file:
@@ -198,9 +202,6 @@ def process_item(stack, user_dict, lastx_list, mem, settings, tape, item):
     # if item is a float
     elif type(item) == float:
         stack.insert(0, item)
-        # save this item as lastx
-        lastx_list = [lastx_list[-1]]
-        lastx_list.append(stack[0])
 
     # if item is a math operator only requiring x:
     elif item in op1:
@@ -243,10 +244,23 @@ def process_item(stack, user_dict, lastx_list, mem, settings, tape, item):
     # is ignored, the user is notified, and the program simply continues...
     else:
         print('='*45)
-        print('Unknown command.')
+        err = find_error(item)
+        if err:
+            print('"', item, '"\n', err, sep='')
         print('='*45)
 
     return stack, lastx_list, tape, user_dict
+
+
+def find_error(item):
+    """
+    If user enters something unintelligible, try to provide some help for common errors.
+    """
+    if item == 'm':
+        err = 'Commands related to memory registers\nrequire capitalization.'
+    else:
+        err = 'Unknown command.'
+    return err
 
 
 def parse_entry(stack, entered_value):
@@ -454,11 +468,11 @@ def print_commands(stack):
     """
     List all available commands, including those that manipulate the stack. To get a list of math operators, shortcuts, or constants, type:
 
-    math --> (math operators)
+     math --> (math operators)
 
     short --> (shortcuts)
 
-    con --> (built-in constants)
+      con --> (built-in constants)
     """
     # print all the keys in {shortcuts}
     txt, line_width = ' COMMANDS ', 56
@@ -478,11 +492,11 @@ def print_math_ops(stack):
     """
     List all math operations. to get a list of commands, shortcuts, or constants, type:
 
-    com --> (commandsd)
+      com --> (commandsd)
 
     short --> (shortcuts)
 
-    con --> (built-in constants)
+      con --> (built-in constants)
     """
     # print all the keys, values in {op1} and {op2}
     txt, line_width = ' MATH OPERATIONS ', 56
@@ -503,13 +517,13 @@ def print_math_ops(stack):
 
 def print_shortcuts(stack):
     """
-    List shortcuts to math functions. To get a list of commands, math operations, or constants, type:
+    List shortcuts to frequently used math operations and other commands. To get a list of commands, math operations, or constants, type:
 
-    com --> (commands)
+     com --> (commands)
 
     math --> (math operators)
 
-    con --> (built-in constants)
+     con --> (built-in constants)
     """
     # print all the keys, values in {shortcuts}
     txt, line_width = ' SHORTCUTS ', 56
@@ -546,14 +560,16 @@ Note: This list does not include user-defined constants. That list is accessed b
 
 
 def print_dict(stack):
-    """
+    """ 
     List user-defined constants and expressions. 
     
 To use a user-defined constant or expression, type its name. Either the constant's value will be placed on the stack or the expression will be executed.
 
-Related command:
+Related commands:
 
-    user --> to create user-defined (named) constants and expressions
+      user --> create, edit, save user-defined constants and expressions
+
+    h user --> details on how to create a user-defined expression
     """
     # print all the keys, values in {user_dict}
     try:
@@ -1258,12 +1274,12 @@ def convert_hex_to_dec(stack, hex_value):
 
 def define_constant(stack, user_dict):
     """
-    Define, edit, or delete a user-defined constant or expression. Once defined, constants/expressions are saved to file and retrieved automatically when the calculator starts. Names must be lower case and cannot contain spaces. You cannot redefine system names (e.g., "swap"). Two types of constants can be saved:
+    Define, edit, or delete a user-defined constant or expression. Once defined constants/expressions are saved to file and retrieved automatically when the calculator starts. Names must be lower case and cannot contain spaces. You cannot redefine system names (e.g., "swap" or "com"). You can define two types of named operations:
 
 (1) Numerical constants. These are numbers.
 
     Example: 
-        meaning_of_life:  42.0  a meaningful constant
+        ultimate:  42.0  life's meaning
 
 (2) Expressions. These are strings.
 
@@ -1438,84 +1454,6 @@ to list the current user-defined constants.
     return stack, user_dict
 
 
-def get_user_expression_NOT_USED(stack, item):
-    """
-    Get a user-defined expression from the file containing user-defined constants. Execute the expression and place the result on the stack. This operation is particularly useful if you need to reuse a complicated expression with different stack values, making this a rudimentary programmable calculator.
-    
-Usage:
-
-(1) To create and save an expression, type:
-
-    user
-    
- An expression is most often something you might enter on the command line, such as
-
-    (3 4 +) (5 4 +) *
-    
-Or, you can use x:, y:, z:, t: in your expression to refer to specific registers in the stack.
-
-(2) To use your expression, type the expressions name
-
-Example, using register names:
-
-    (x: y: +) y: *
-    
-NOTE: Keep in mind that during evaluation of the expression, the stack contents change as operations are executed. We'll see this happen in this example...
-
--- Let's put the following values on the stack.
-
-    z:          7.0000
-    y:          3.0000
-    x:          1.0000
-
--- When the expression is run, the + operator adds x: and y:. y: is removed and x: is replaced with the result: 4. z: drops down to the y: register:
-
-    z:          0.0000
-    y:          7.0000
-    x:          4.0000
-
--- Then the current x: and y: are multiplied and the result, 28, is put in the x: register:
-
-    z:          0.0000
-    y:          0.0000
-    x:         28.0000
-
-NOTE: 
-(1) The non-obvious point is that, in an expression, the registers (e.g., "x:") are not variable names, but refer to the stack at THAT point in the expression's execution.
-
-(2) Simple use of register names can save a lot of time when repeating simple calculations, such as getting the mid-point between two values. Create and save the following expression, say as "mid". 
-
-    y: x: s dup rd - 2 / s d +
-
-Put any two values on the stack, and run the expression by typing:
-
-    mid
-
-An easy way to get the expression: use the command line to do what you need, then copy the steps from the tape. Format into one line, if needed, and then paste in the VALUE field when you create the user-defined expression using:
-
-    user
-
-(2) Memory registers can act as variables, and may be better suited for some complicated expressions. See help for M+, M-, MR, and ML.
-    """
-    try:
-        with open("constants.json") as file:
-            user_dict = json.load(file)
-    except:
-        user_dict = {}
-
-    user_expression = ''
-    if not user_dict:
-        print('No expressions available.')
-    elif item in user_dict.keys():
-        print('\n', '='*10, ' USER-DEFINED EXPRESSIONS ', '='*11, sep='')
-        for k, v in user_dict.items():
-            print(k, ': ', v[0], ' ', v[1], sep='')
-        print('='*45)
-        user_expression = user_dict[item][0]
-
-    return str(user_expression)
-
-
 # === STACK FUNCTIONS =====
 
 def drop(stack):
@@ -1553,7 +1491,7 @@ Examples:
     
     3 4 lastx --> z: 3  y: 4  x: 4 (duplicates x:)
     """
-    stack.insert(0, lastx_list[-1])
+    stack.insert(0, lastx_list[0])
     return stack
 
 
@@ -2061,7 +1999,7 @@ to inspect (list) the memory registers.
         try:
             stack.pop(0)
             stack.pop(0)
-            mem.update({register: register_value - current_value})
+            mem.update({register: current_value - register_value})
         except:
             print('No operation conducted.')
     else:
@@ -2431,9 +2369,9 @@ def get_revision_number():
 
 if __name__ == '__main__':
 
-    get_revision_number()
+    # get_revision_number()
 
-    version_num = '2.4 rev474'
+    version_num = '2.4 rev476'
 
     print('ada ' + version_num[0:3] +  ' - an RPN calculator')
 

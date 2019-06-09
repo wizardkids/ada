@@ -31,7 +31,7 @@ v 2.3.3
     -- add a config.json file that holds settings session to session
     -- add a "beginner's" user-tip, via a setting in {settings} that is notaccessible to the user
 
-rev 2019-06-03 07:42 PM
+v rev 2019-06-03 07:42 PM
     -- changed file naming and versioning
     -- file name: ada.py
     -- versioning: x.y z
@@ -40,7 +40,7 @@ rev 2019-06-03 07:42 PM
             y = feature number, 0-9. Increase this number if the changecontains new features with or without bug fixes.
             z = revision datetime
         
-2.4 rev474
+v 2.4 rev474
     -- change all dec/hex/bin function names to be consistent with each other
     -- add coding for convert_hex_to_dec and convert_dec_to_hex
     add readme.md
@@ -62,3 +62,10 @@ rev 2019-06-03 07:42 PM
     -- fixed process_item so that changes to user_dict are passed between functions
     -- fix mem_del() so that memory register numbers are not left on the stack
     -- fixed functions of converting bin to dec and hex to dec at ~100
+
+v2.4 rev476
+-- minor edits and bug fixes
+-- delete get_user_expression() since it is unused
+-- add find_error() and modify the error trap at the end of ess_item() so it uses find_error()
+-- fixed computation error in mem_sub()
+-- fix bug so that the correct lastx is store and get_lastx() returns the actual value of the last x: 
