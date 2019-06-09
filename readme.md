@@ -37,4 +37,4 @@ Installation could not be easier. **_ada_** requires only one file: either `ada.
 
 3. Download `ada.py` and use [pyinstaller](https://www.pyinstaller.org/) (or equivalent) to build your own executable.
 
-During the first run of **_ada_**, `config.json` and `constants.json` are created automatically. A .ico file is available if you want to create a shortcut with a unique icon.
+To _download_ one file, click on the file name. On the next screen, click the "Download" button.
