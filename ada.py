@@ -48,7 +48,7 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape):
             settings['show_tips'] = 'N'
 
         # get the command line entry from the user
-        entered_value = input('\n').lstrip().rstrip()
+        entered_value = input('').lstrip().rstrip()
         
         # make sure parentheses are balanced before proceeding
         lst = list(entered_value)
@@ -156,6 +156,10 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape):
 
                 ndx += 1
 
+        # save this item as lastx_list; retrieved by get_lastx()
+        lastx_list = [lastx_list[-1]]
+        lastx_list.append(stack[0])
+
         if quit:
             # save {settings} to disk before quitting
             with open('config.json', 'w+') as file:
@@ -181,9 +185,6 @@ def process_item(stack, user_dict, lastx_list, mem, settings, tape, item):
     # if item is a float
     elif type(item) == float:
         stack.insert(0, item)
-        # save this item as lastx
-        lastx_list = [lastx_list[-1]]
-        lastx_list.append(stack[0])
 
     # if item is a math operator only requiring x:
     elif item in op1:
@@ -226,10 +227,23 @@ def process_item(stack, user_dict, lastx_list, mem, settings, tape, item):
     # is ignored, the user is notified, and the program simply continues...
     else:
         print('='*45)
-        print('Unknown command.')
+        err = find_error(item)
+        if err:
+            print('"', item, '"\n', err, sep='')
         print('='*45)
 
     return stack, lastx_list, tape, user_dict
+
+
+def find_error(item):
+    """
+    If user enters something unintelligible, try to provide some help for common errors.
+    """
+    if item == 'm':
+        err = 'Commands related to memory registers\nrequire capitalization.'
+    else:
+        err = 'Unknown command.'
+    return err
 
 
 def parse_entry(stack, entered_value):
@@ -437,11 +451,11 @@ def print_commands(stack):
     """
     List all available commands, including those that manipulate the stack. To get a list of math operators, shortcuts, or constants, type:
 
-    math --> (math operators)
+     math --> (math operators)
 
     short --> (shortcuts)
 
-    con --> (built-in constants)
+      con --> (built-in constants)
     """
     # print all the keys in {shortcuts}
     txt, line_width = ' COMMANDS ', 56
@@ -461,11 +475,11 @@ def print_math_ops(stack):
     """
     List all math operations. to get a list of commands, shortcuts, or constants, type:
 
-    com --> (commandsd)
+      com --> (commandsd)
 
     short --> (shortcuts)
 
-    con --> (built-in constants)
+      con --> (built-in constants)
     """
     # print all the keys, values in {op1} and {op2}
     txt, line_width = ' MATH OPERATIONS ', 56
@@ -486,13 +500,13 @@ def print_math_ops(stack):
 
 def print_shortcuts(stack):
     """
-    List shortcuts to math functions. To get a list of commands, math operations, or constants, type:
+    List shortcuts to frequently used math operations and other commands. To get a list of commands, math operations, or constants, type:
 
-    com --> (commands)
+     com --> (commands)
 
     math --> (math operators)
 
-    con --> (built-in constants)
+     con --> (built-in constants)
     """
     # print all the keys, values in {shortcuts}
     txt, line_width = ' SHORTCUTS ', 56
@@ -529,16 +543,16 @@ Note: This list does not include user-defined constants. That list is accessed b
 
 
 def print_dict(stack):
-    """
+    """ 
     List user-defined constants and expressions. 
     
-(1) To use a user-define constant or expression, type its name. Either the constant's value will be placed on the stack or the expression will be executed.
+To use a user-defined constant or expression, type its name. Either the constant's value will be placed on the stack or the expression will be executed.
 
 Related commands:
-    
-    usercon --> to list the current user-defined constants. 
 
-    user --> to create user-defined (named) constants and expressions
+      user --> create, edit, save user-defined constants and expressions
+
+    h user --> details on how to create a user-defined expression
     """
     # print all the keys, values in {user_dict}
     try:
@@ -1243,12 +1257,12 @@ def convert_hex_to_dec(stack, hex_value):
 
 def define_constant(stack, user_dict):
     """
-    Define, edit, or delete a user-defined constant or expression. Once defined, constants/expressions are saved to file and retrieved automatically when the calculator starts. Names must be lower case and cannot contain spaces. You cannot redefine system names (e.g., "swap"). Two types of constants can be saved:
+    Define, edit, or delete a user-defined constant or expression. Once defined constants/expressions are saved to file and retrieved automatically when the calculator starts. Names must be lower case and cannot contain spaces. You cannot redefine system names (e.g., "swap" or "com"). You can define two types of named operations:
 
 (1) Numerical constants. These are numbers.
 
     Example: 
-        meaning_of_life:  42.0  a meaningful constant
+        ultimate:  42.0  life's meaning
 
 (2) Expressions. These are strings.
 
@@ -1285,7 +1299,7 @@ NOTE: Keep in mind that during evaluation of the expression, the stack contents 
 NOTES: 
 (1) The non-obvious point is that, in an expression, the registers (e.g., "x:") are not variable names, but refer to the stack at THAT point in the expression's execution.
 
-(2) Simple use of register names can save a lot of time when repeating simple calculations, such as getting the mid-point between two values. Create and save the following expression, say as "mid". 
+(2) Register names can save a lot of time when repeating simple calculations, such as getting the mid-point between two values. Create and save the following expression, say as "mid". 
 
     y: x: s dup rd - 2 / s d +
 
@@ -1293,18 +1307,18 @@ Put any two values on the stack, and run the expression by typing:
 
     mid
 
-An easy way to get the expression: use the command line to do what you need, then copy the steps from the tape. Format into one line, if needed, and then paste in the VALUE field when you create the user-defined expression using:
+An easy way to get an expression: use the command line to do what you need, then copy the steps from the tape. Format into one line, if needed, and then paste the expression into the VALUE field when you create the user-defined expression using:
 
     user
 
-(3) User-define constant/expression names cannot be used as part of a sequence. For example:
+(3) User-define constant/expression names cannot be used as part of a sequence on the command line. For example:
 
     100 50 mid  -- invalid
 
     100 50      -- put values on stack first
     mid         -- valid
 
-(4) Memory registers can act as variables, and may be better suited for some complicated expressions. See help for M+, M-, MR, and ML.
+(4) Memory registers can act as variables, and may be better suited for some complicated expressions. See help for M+, M-, MR, MD, and ML.
     
 Type:
     
@@ -1423,84 +1437,6 @@ to list the current user-defined constants.
     return stack, user_dict
 
 
-def get_user_expression_NOT_USED(stack, item):
-    """
-    Get a user-defined expression from the file containing user-defined constants. Execute the expression and place the result on the stack. This operation is particularly useful if you need to reuse a complicated expression with different stack values, making this a rudimentary programmable calculator.
-    
-Usage:
-
-(1) To create and save an expression, type:
-
-    user
-    
- An expression is most often something you might enter on the command line, such as
-
-    (3 4 +) (5 4 +) *
-    
-Or, you can use x:, y:, z:, t: in your expression to refer to specific registers in the stack.
-
-(2) To use your expression, type the expressions name
-
-Example, using register names:
-
-    (x: y: +) y: *
-    
-NOTE: Keep in mind that during evaluation of the expression, the stack contents change as operations are executed. We'll see this happen in this example...
-
--- Let's put the following values on the stack.
-
-    z:          7.0000
-    y:          3.0000
-    x:          1.0000
-
--- When the expression is run, the + operator adds x: and y:. y: is removed and x: is replaced with the result: 4. z: drops down to the y: register:
-
-    z:          0.0000
-    y:          7.0000
-    x:          4.0000
-
--- Then the current x: and y: are multiplied and the result, 28, is put in the x: register:
-
-    z:          0.0000
-    y:          0.0000
-    x:         28.0000
-
-NOTE: 
-(1) The non-obvious point is that, in an expression, the registers (e.g., "x:") are not variable names, but refer to the stack at THAT point in the expression's execution.
-
-(2) Simple use of register names can save a lot of time when repeating simple calculations, such as getting the mid-point between two values. Create and save the following expression, say as "mid". 
-
-    y: x: s dup rd - 2 / s d +
-
-Put any two values on the stack, and run the expression by typing:
-
-    mid
-
-An easy way to get the expression: use the command line to do what you need, then copy the steps from the tape. Format into one line, if needed, and then paste in the VALUE field when you create the user-defined expression using:
-
-    user
-
-(2) Memory registers can act as variables, and may be better suited for some complicated expressions. See help for M+, M-, MR, and ML.
-    """
-    try:
-        with open("constants.json") as file:
-            user_dict = json.load(file)
-    except:
-        user_dict = {}
-
-    user_expression = ''
-    if not user_dict:
-        print('No expressions available.')
-    elif item in user_dict.keys():
-        print('\n', '='*10, ' USER-DEFINED EXPRESSIONS ', '='*11, sep='')
-        for k, v in user_dict.items():
-            print(k, ': ', v[0], ' ', v[1], sep='')
-        print('='*45)
-        user_expression = user_dict[item][0]
-
-    return str(user_expression)
-
-
 # === STACK FUNCTIONS =====
 
 def drop(stack):
@@ -1538,7 +1474,7 @@ Examples:
     
     3 4 lastx --> z: 3  y: 4  x: 4 (duplicates x:)
     """
-    stack.insert(0, lastx_list[-1])
+    stack.insert(0, lastx_list[0])
     return stack
 
 
@@ -1716,10 +1652,10 @@ def swap(stack):
     Swap x: and y: values on the stack.
     
 Example (1): 
-    3 4 swap --> y: 4  x: 3
+    y: 3  x: 4 swap --> y: 4  x: 3
     
 Example (2):
-    4 3 s --> y: 3  x: 4
+    y: 4  x: 3 s --> y: 3  x: 4
 
 Note that example (2) uses a shortcut. To list shortcuts, type: 
 
@@ -1731,7 +1667,7 @@ Note that example (2) uses a shortcut. To list shortcuts, type:
 
 def trim_stack(stack):
     """
-    Remove all elements on the stack except the x:, y:, z:, and t: registers.
+    Remove all elements on the stack except x:, y:, z:, t:.
     
 Note: You can use 
 
@@ -1799,7 +1735,9 @@ Example:
 
 def get_hex_alpha(stack):
     """
-    Put a percent alpha value (between 0 and 100) in x:; this operation returns the hex equivalent, reported as a string.
+    Put a percent alpha value (between 0 and 100) in x:
+    
+    This operation returns the hex equivalent, reported as a string.
 
 Example:
     75 alpha --> BF
@@ -1857,23 +1795,39 @@ def lengths(stack):
     Convert a decimal measurement to a fraction. For example, you can easily determine what is the equivalent measure of 2.25 inches in eighths. Very handy for woodworking.
     
 Example (1)
-    2.25 8 i --> t: 2.25  z: 2  y: 2  x: 8
-    
-Translation, reading z-->x:
-    2.25 inches = 2 2/8"
-    
-Example (2)
-    3.65 32 i --> t: 3.65  z: 3  y: 20.8  x: 32
-    
-Translation,, reading z-->x:
-    3.65 inches = 3 20.8/32"
-    
-Example (3)
-    Enter: 3.25 then 8i
-    Returns: t,z,y,z... 3.25, 3, 2, 8
+    2.25 8 i 
 
-Translation, reading z-->x:
-    3.25" =  3 2/8"
+        t:          2.2500
+        z:          2.0000
+        y:          2.0000
+        x:          8.0000
+
+Translation:
+    2.25" equals 2 and 2/8"
+
+=================================================
+
+Example (2)
+    3.65 32 i 
+    
+        t:          3.6500
+        z:          3.0000
+        y:         20.8000
+        x:         32.0000
+
+    3.65" equals 3 20.8/32"
+    
+=================================================
+
+Example (3)
+    3.25 64i
+
+        t:          3.2500
+        z:          3.0000
+        y:         16.0000
+        x:         64.0000
+
+    3.25" equals 3 16/64"
     """
     
     # Convert a decimal measurement to 1/8", 1/16", 1/32", or 1/64"
@@ -1896,7 +1850,9 @@ Translation, reading z-->x:
 
 def ftoc(stack):
     """
-    Convert temperature from F to C.\n\nExample:
+    Convert temperature from F to C.
+    
+Example:
         
     212 fc --> x: 100
     """
@@ -1910,7 +1866,9 @@ def ftoc(stack):
 
 def ctof(stack):
     """
-    Convert temperature from C to F.\n\nExample:
+    Convert temperature from C to F.
+    
+Example:
         
     100 cf --> x: 212
     """
@@ -1948,7 +1906,7 @@ def og(stack):
 
 def mem_add(stack, mem):
     """
-    Add x: to y: memory register. 
+    Add x: to the y: memory register. 
     
 Example: 
     1 453 
@@ -1994,13 +1952,13 @@ to inspect (list) the memory registers.
 
 def mem_sub(stack, mem):
     """
-    Subtract x: from y: memory register. If y: is not an integer, it will be converted to the next higher integer value to determine the target memory register for this operation.
+    Subtract x: from the y: memory register.
     
 Example:
-    1 12 
+    3 12 
     M- 
     
-Subtracts 12 from the current value of the #1 memory register.
+Subtracts 12 from the current value of the #3 memory register.
 
 Type:
 
@@ -2024,7 +1982,7 @@ to inspect (list) the memory registers.
         try:
             stack.pop(0)
             stack.pop(0)
-            mem.update({register: register_value - current_value})
+            mem.update({register: current_value - register_value})
         except:
             print('No operation conducted.')
     else:
@@ -2040,12 +1998,12 @@ to inspect (list) the memory registers.
 
 def mem_recall(stack, mem):
     """
-    Puts the value in the x: register value on the stack. If x: is not an integer, it will be converted to the next higher integer value to determine the target memory register for this operation.
+    Puts the value in the x: memory register on the stack.
     
 Example: 
-    3 MR
+    12 MR
     
-puts the value of the #3 memory register on the stack.
+puts the value of the #12 memory register on the stack.
 
 Type:
 
@@ -2088,7 +2046,7 @@ def mem_list(stack, mem):
 
 def mem_del(stack, mem):
     """
-    Delete one, or a range, of memory registers. If x: (or y:) is not an integer, it will be converted to the next higher integer value to determine the target memory register for this operation. When deleting a range of registers, the order of the register numbers on the stack does not matter.
+    Delete one, or a range, of memory registers. When deleting a range of registers, the order of the register numbers in x: and y: does not matter. Deletion is inclusive of the numbers you enter.
 
 NOTE: Make sure the stack is clear before entering register numbers since, pending confirmation, this operation uses whatever numbers appear in x: and y: as the range of registers to delete.
 
@@ -2175,7 +2133,7 @@ to get information about a specific command.
 
     txt = """
 =================== HELP ====================
-<basics> : the basics of RPN
+  <basics> : the basics of RPN
 <advanced> : how to use THIS calculator
 
 You can also type:
@@ -2214,6 +2172,8 @@ Type:
 
 Result:
 
+    t:          0.0000
+    z:          0.0000
     y:          3.0000
     x:          4.0000
             
@@ -2373,12 +2333,26 @@ Example:
     
     return stack
 
+def get_revision_number():
+    """
+    Manually run this function to get a revision number by uncommenting the first line of code under "if __name__ == '__main__':"
+    """
+    from datetime import datetime
+
+    start_date = datetime(2018, 2, 18)
+    tday = datetime.today()
+    revision_delta = datetime.today() - start_date
+
+    print("\nREVISION NUMBER:", revision_delta.days)
+    print('This is the number of days since 2/18/2018,\n', 'the date that the first version of this\n', 'calculator was launched.\n\n', sep='')
+    return None
+
 
 # GLOBAL FUNCTIONS AND RUN RPN() ====================
 
 if __name__ == '__main__':
 
-    version_num = '2.4 rev474'
+    version_num = '2.4 rev201906071339'
 
     print('ada ' + version_num[0:3] +  ' - an RPN calculator')
 
