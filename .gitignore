@@ -8,8 +8,8 @@ __init__.py
 *.ico
 *.pyc
 *.orig
-change.log
 constants.json
+change.log
 config.json
 developer.bat
 github.txt
