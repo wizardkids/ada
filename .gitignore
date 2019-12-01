@@ -1,11 +1,18 @@
 .history/
 .vscode/
 __pycache__/
+images/
 old versions/
-github.txt
-RPN_calculator - Tk.py
-scratch.py
-constants.json
-config.json
+tests/
+__init__.py
+*.ico
 *.pyc
 *.orig
+constants.json
+change.log
+config.json
+developer.bat
+github.txt
+RPN_calculator - Tk.py
+RPNcalc.py -- Paul Lutus version.py
+scratch.py
