@@ -829,7 +829,7 @@ def about(stack):
     print('='*45)
     
     txt1 = 'ada - an RPN calculator\n'+ 'version: ' + version_num[0:18] + '\n' + \
-          ' python: 3.7\n' + '   date: 2019-05-27\n\n'
+          ' python: v3.7\n' + ' author: Richard E. Rawson\n\n'
 
     txt2 = 'ada is named after Ada Lovelace (1815–1852), whose achievements included developing an algorithm showing how to calculate a sequence of numbers, forming the basis for the design of the modern computer. It was the first algorithm created expressly for a machine to perform.'
 
