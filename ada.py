@@ -6,12 +6,12 @@ Command line RPN calculator that performs a variety of common functions.
 
 """
 
-# version_num is in "if __name__ == '__main__':" 
-    # ? -- versioning: x.y z
-    # ?    Where:
-    # ?        x = main version number
-    # ?        y = feature number, 0-9. Increase this number if the change contains new features with or without bug fixes.
-    # ?        z = revision number determined by get_revision_number()
+# version_num is in "if __name__ == '__main__':"
+# ? -- versioning: x.y z
+# ?    Where:
+# ?        x = main version number
+# ?        y = feature number, 0-9. Increase this number if the change contains new features with or without bug fixes.
+# ?        z = revision number determined by get_revision_number()
 
 # ! Best info on GIT branching strategy:
     # ? https://nvie.com/posts/a-successful-git-branching-model/
