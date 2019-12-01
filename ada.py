@@ -2354,7 +2354,7 @@ if __name__ == '__main__':
 
     version_num = 'v2.4 rev476'
 
-    print('ada ' + version_num[0:3] +  ' - an RPN calculator')
+    print('ada ' + version_num[0:4] +  ' - an RPN calculator')
 
     # initialize the x, y, z, and t registers, and other global variables
     stack, entered_value = [0.0], 0.0
