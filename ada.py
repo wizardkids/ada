@@ -2342,8 +2342,8 @@ def get_revision_number():
     tday = datetime.today()
     revision_delta = datetime.today() - start_date
 
-    print("\nREVISION NUMBER:", revision_delta.days)
-    print('This is the number of days since 2/18/2018,\n', 'the date that the first version of this\n', 'calculator was launched.\n\n', sep='')
+    # print("\nREVISION NUMBER:", revision_delta.days)
+    # print('This is the number of days since 2/18/2018,\n', 'the date that the first version of this\n', 'calculator was launched.\n\n', sep='')
     return None
 
 
