@@ -327,7 +327,7 @@ def parse_entry(stack, entered_value):
         if r in entered_value:
             stack[ndx] = 0.0
 
-    # convert numbers to floats and strip out empty elements  and punctuation(e.g., commas, as in, comma delimited number sequences)
+    # convert numbers to floats and strip out empty elements  and punctuation (e.g., commas, as in, comma delimited number sequences)
     for i in data:
         if i in [',', ';', ':']:
             i = ' '
@@ -1160,7 +1160,7 @@ def math_op2(stack, item):
 
 # === NUMBER SYSTEM CONVERSIONS =====
 
-def convert_bin_to_dec(stack, bin_value):
+def convert_bin_to_dec(stack, bin_value='not_binary'):
     """
     Convert x: from binary to decimal. Replaces binary value in x: with the decimal value.
 
@@ -1172,6 +1172,13 @@ Example:
         print('Cannot find binary equivalent of a negative number.')
         print('='*45)
         return stack
+    elif bin_value == 'not_binary':
+        print('='*45)
+        print('Enter binary values preceded with "0b".')
+        print('='*45)
+        return stack
+    else:
+        pass
     stack[0] = int(bin_value, 2)
     return stack
 
@@ -1228,7 +1235,7 @@ def convert_dec_to_hex(stack):
     return stack
 
 
-def convert_hex_to_dec(stack, hex_value):
+def convert_hex_to_dec(stack, hex_value='not_hex'):
     """
     Convert a hexadecimal (string beginning with "0x") to decimal. Since the hexadecimal number is a string, it is not placed on the stack.
     """
@@ -1237,19 +1244,24 @@ def convert_hex_to_dec(stack, hex_value):
     # ! so entering 'hexdec' actually does nothing
     # SOURCE:
     # https://owlcation.com/stem/Convert-Hex-to-Decimal
-    hex_dict = {
-        '0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5',
-        '6': '6', '7': '7', '8': '8', '9': '9', '10': 'A',
-        '11': 'B', '12': 'C', '13': 'D', '14': 'E', '15': 'F'
-    }
-    hex_value = hex_value[::-1].upper()
-    result = 0
-    for ndx, i in enumerate(hex_value):
-        n = [k for k, v in hex_dict.items() if v == i]
-        result += (int(n[0]) * math.pow(16, ndx))
-    stack.insert(0, result)
-
-    return stack
+    if hex_value == 'not_hex':
+        print('='*45)
+        print('Enter hex values preceded with "0x".')
+        print('='*45)
+        return stack
+    else:
+        hex_dict = {
+            '0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5',
+            '6': '6', '7': '7', '8': '8', '9': '9', '10': 'A',
+            '11': 'B', '12': 'C', '13': 'D', '14': 'E', '15': 'F'
+        }
+        hex_value = hex_value[::-1].upper()
+        result = 0
+        for ndx, i in enumerate(hex_value):
+            n = [k for k, v in hex_dict.items() if v == i]
+            result += (int(n[0]) * math.pow(16, ndx))
+        stack.insert(0, result)
+        return stack
 
 # === USER-DEFINED CONSTANTS FUNCTIONS ====
 
