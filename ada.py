@@ -1164,9 +1164,15 @@ def convert_bin_to_dec(stack, bin_value='not_binary'):
     """
     Convert x: from binary to decimal. Replaces binary value in x: with the decimal value.
 
+    It is not necessary to issue a command. Entering a binary number beginning with '0b' is sufficient.
+
 Example:
-    0b1000 dec --> x: 8
+    0b1000 --> x: 8
     """
+    # -- RPN() handles this directly without going to process_item()
+    # -- entering '0b' is sufficient to convert binary to decimal
+    # -- so entering 'bindec' actually does nothing
+
     if stack[0] < 0:
         print('='*45)
         print('Cannot find binary equivalent of a negative number.')
@@ -1238,10 +1244,15 @@ def convert_dec_to_hex(stack):
 def convert_hex_to_dec(stack, hex_value='not_hex'):
     """
     Convert a hexadecimal (string beginning with "0x") to decimal. Since the hexadecimal number is a string, it is not placed on the stack.
+
+    It is not necessary to issue a command. Entering a hex number beginning with '0x' is sufficient.
+
+    Example:
+    0xA --> x: 8
     """
-    # ! RPN() handles this directly without going to process_item()
-    # ! entering '0x' is sufficient to convert hex to decimal
-    # ! so entering 'hexdec' actually does nothing
+    # -- RPN() handles this directly without going to process_item()
+    # -- entering '0x' is sufficient to convert hex to decimal
+    # -- so entering 'hexdec' actually does nothing
     # SOURCE:
     # https://owlcation.com/stem/Convert-Hex-to-Decimal
     if hex_value == 'not_hex':
