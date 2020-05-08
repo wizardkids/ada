@@ -33,7 +33,6 @@ from inspect import getmembers, isfunction
 from string import ascii_letters, ascii_lowercase, ascii_uppercase, digits
 from sys import modules
 
-
 # MAIN CALCULATOR FUNCTION ====================
 
 def RPN(stack, user_dict, lastx_list, mem, settings, tape):
@@ -43,7 +42,7 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape):
 
     while True:
         quit = False
-        
+
         # print the tape if requested in {settings}
         if settings['show_tape'] == 'Y':
             print_tape(stack, tape)
@@ -66,7 +65,7 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape):
 
         # get the command line entry from the user
         entered_value = input('').lstrip().rstrip()
-        
+
         # make sure parentheses are balanced before proceeding
         lst = list(entered_value)
         if lst.count('(') - lst.count(')') != 0:
@@ -95,7 +94,7 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape):
         if entered_value[0] == '#':
             # then this is a hex number to be converted to rgb
             stack = hex_to_rgb(stack, entered_value)
-        
+
          # if entered_value is a hexadecimal value, beginning with '0x'
         elif entered_value[0:2] == '0x':
             stack = convert_hex_to_dec(stack, entered_value.split(' ')[0][2:])
@@ -105,7 +104,7 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape):
         elif entered_value[0:2] == '0b':
             stack = convert_bin_to_dec(stack, entered_value.split(' ')[0][2:])
             continue
-        
+
         # otherwise, we're going to have to parse what the user entered
         else:
             # put each "item" in user's entry into a [list]
@@ -155,7 +154,7 @@ def RPN(stack, user_dict, lastx_list, mem, settings, tape):
                             stack, user_dict, lastx_list, mem, settings, tape, item)
                     ndx += 1
                     continue
-                
+
                 # if '(', then this is the start of a group; a result is obtained for each group
                 elif item == '(':
                     while item != ')':
@@ -267,12 +266,12 @@ def parse_entry(stack, entered_value):
     """
     From the user's entered value, parse out each valid element. Put each distinct element (character/operator/number) of the user's entered_value into a list.
 
-    Example: Each of the following characters, delimited by spaces, is a single element that will be added to [entered_list]: 
-    
+    Example: Each of the following characters, delimited by spaces, is a single element that will be added to [entered_list]:
+
     '( 43 62 s d dup + )' --> ['(', '43', '62', 's', 'd', 'dup', '+, ')']
 
-    This fxn has the challenge of figuring out exactly WHAT string of characters qualifies as a single item. For example, in the above expresson, "d" as a lone character is one item while the 'd' in 'dup' belongs with 'up' to form "dup" as one item. 
-    
+    This fxn has the challenge of figuring out exactly WHAT string of characters qualifies as a single item. For example, in the above expresson, "d" as a lone character is one item while the 'd' in 'dup' belongs with 'up' to form "dup" as one item.
+
     Return entered_list to RPN().
     """
 
@@ -320,7 +319,7 @@ def parse_entry(stack, entered_value):
                     except IndexError:
                         break
 
-            # if it's a single-character math operator (all of {op2] 
+            # if it's a single-character math operator (all of {op2]
             # and only '!' in {op1})
             elif entered_value[ndx] in op2.keys() or entered_value[ndx] == '!':
                 if s == '-':
@@ -344,7 +343,7 @@ def parse_entry(stack, entered_value):
     for ndx, r in enumerate(['x:', 'y:', 'z:', 't:']):
         if r in entered_value:
             stack[ndx] = 0.0
-    
+
     # convert numbers to floats and strip out empty elements  and punctuation(e.g., commas, as in, comma delimited number sequences)
     for i in data:
         if i in [',', ';', ':']:
@@ -408,7 +407,7 @@ def print_register(stack, settings):
 def get_file_data(stack):
     """
     Import a text file and put the data on the stack.
-    
+
 Since the stack is only a list of numbers, the file that you import should contain only one column of numbers. Lines that don't contain numbers will be skipped.
     """
     data_file = input('File name: ')
@@ -433,7 +432,7 @@ Since the stack is only a list of numbers, the file that you import should conta
             cnt += 1
         except ValueError:
             pass
-    
+
     # provide a report to the user
     print('='*18, ' REPORT ', '='*19, sep='')
     print('   Lines in file:', len(file))
@@ -442,7 +441,7 @@ Since the stack is only a list of numbers, the file that you import should conta
 
     return stack
 
- 
+
 # PRINT FUNCTIONS (INDEX) ====================
 
 def manual(stack):
@@ -560,9 +559,9 @@ Note: This list does not include user-defined constants. That list is accessed b
 
 
 def print_dict(stack):
-    """ 
-    List user-defined constants and expressions. 
-    
+    """
+    List user-defined constants and expressions.
+
 To use a user-defined constant or expression, type its name. Either the constant's value will be placed on the stack or the expression will be executed.
 
 Related commands:
@@ -592,15 +591,15 @@ Related commands:
 
 def print_all_functions(stack, user_dict):
     """
-    All commands and math operations. 
-    
+    All commands and math operations.
+
     This function is not used, except by the developer.
     """
 
     # strategy: only get docstrings from things NOT in this list; this will be all the fxns that the user can use
     module_functions = ['RPN', 'process_item', 'parse_entry','print_register', 'calculator_settings', 'print_all_functions', 'print_commands', 'help', 'help_1', 'help_2', 'math_op1', 'math_op2', 'fold']
 
-    func_name = ''   
+    func_name = ''
     func_list = []
     print('='*14, ' MATH OPERATIONS ', '='*14, sep='')
 
@@ -767,7 +766,7 @@ def calculator_settings(settings):
                         print('Enter only an integer.')
                         continue
             # user entered <p> + a number
-            else:  
+            else:
                 try:
                     settings['dec_point'] = str(int(s[1:])).strip()
                 except:
@@ -787,10 +786,10 @@ def calculator_settings(settings):
                 settings['separator'] = ''
             else:
                 settings['separator'] = ','
-        
+
         # change whether or not tape displays
         elif s.strip() == 't':
-            tape = input('Show tape persistently? (ON/OFF): ') 
+            tape = input('Show tape persistently? (ON/OFF): ')
             if tape.strip().upper() == 'ON':
                 settings['show_tape'] = 'Y'
             else:
@@ -821,7 +820,7 @@ def calculator_settings(settings):
             elif k == 'show_tape':
                 print('     Show tape: ', v)
             # elif k == 'show_tips':
-            #     print('  Restart tips: ', v) 
+            #     print('  Restart tips: ', v)
             else:
                 pass
         print('='*45)
@@ -829,7 +828,7 @@ def calculator_settings(settings):
         # e or exit to exit out of settings
         if s.lower() == 'e' or s.lower() == 'exit' or not s:
             break
-            
+
     # save {settings} to file, whether changed or not
     with open('config.json', 'w+') as file:
         file.write(json.dumps(settings, ensure_ascii=False))
@@ -844,7 +843,7 @@ def about(stack):
     Information about the author and product.
     """
     print('='*45)
-    
+
     txt1 = 'ada - an RPN calculator\n'+ 'version: ' + version_num[0:18] + '\n' + \
           ' python: v3.7\n' + ' author: Richard E. Rawson\n\n'
 
@@ -875,7 +874,7 @@ To be distinguished from:
 
     trim
 
-that removes all but the x:, y:, z:, and t: registers. 
+that removes all but the x:, y:, z:, and t: registers.
     """
     stack, entry_value = [0.0, 0.0, 0.0, 0.0], ''
     return stack
@@ -885,7 +884,7 @@ that removes all but the x:, y:, z:, and t: registers.
 def log(stack):
     """
     Returns the log(10) of the x: value.
-    
+
 Example:
     100 log --> x: 2, since 10^2 = 100.
     """
@@ -902,7 +901,7 @@ Example:
 def ceil(stack):
     """
     Returns to ceiling, the next higher integer, of x:
-    
+
 Example: 6.3->7
     """
     x = stack[0]
@@ -913,7 +912,7 @@ Example: 6.3->7
 def floor(stack):
     """
     Returns the floor, the next lower integer, of x:
-    
+
 Example: 6.9->6
     """
     x = stack[0]
@@ -924,14 +923,14 @@ Example: 6.9->6
 def factorial(stack):
     """
     x: factorial
-    
+
 Example (1):
     4 factorial --> x: 24
-    
+
 Example (2)
     4 ! --> x: 24
-    
-Note that example (2) uses a shortcut. To list shortcuts, type: 
+
+Note that example (2) uses a shortcut. To list shortcuts, type:
 
     short
     """
@@ -1047,7 +1046,7 @@ def absolute(stack):
 def random_number(stack):
     """
     Generate a random integer between y (exclusive) and x (inclusive).
-    
+
 Example:
     1 100 rand --> x: 43 (random number between 1 (exclusive) and 100 (inclusive))
     """
@@ -1068,7 +1067,7 @@ Example:
 def add(stack):
     """
     y + x
-    
+
 Example:
     4 3 + --> x: 7
     """
@@ -1076,7 +1075,7 @@ Example:
     stack.pop(0)
     stack.pop(0)
     stack.insert(0, x + y)
-    return stack   
+    return stack
 
 
 def sub(stack):
@@ -1096,7 +1095,7 @@ Example:
 def mul(stack):
     """
     y * x
-    
+
 Example:
     5 3 * --> x: 15
     """
@@ -1104,16 +1103,16 @@ Example:
     stack.pop(0)
     stack.pop(0)
     stack.insert(0, y * x)
-    return stack   
+    return stack
 
 
 def truediv(stack):
     """
     y / x
-    
+
 Example:
     12 3 / --> x: 4
-        
+
 Note: division by zero will generate an error.
     """
     x, y = stack[0], stack[1]
@@ -1126,7 +1125,7 @@ Note: division by zero will generate an error.
 def mod(stack):
     """
     Modulus: remainder from division.\n\nExample (1): 5 2 % --> x: 1
-        
+
 Example (2):
     4 2 % --> x: 0
 
@@ -1142,7 +1141,7 @@ Note: A useful fact is that only even numbers will result in a modulus of zero.
 def pow(stack):
     """
     y to the power of x
-    
+
 Example:
     10 2 ^ --> x: 100
     """
@@ -1181,7 +1180,7 @@ def math_op2(stack, item):
 def convert_bin_to_dec(stack, bin_value):
     """
     Convert x: from binary to decimal. Replaces binary value in x: with the decimal value.
-    
+
 Example:
     0b1000 dec --> x: 8
     """
@@ -1197,10 +1196,10 @@ Example:
 def convert_dec_to_bin(stack):
     """
     Convert x: from decimal to binary. Binary value is a sting so it is reported as a string, and not placed on the stack.
-    
+
 Example:
     8 bin --> "0b1000"
-    
+
 Note: the x: value remains on the stack.
     """
     print('='*45)
@@ -1227,13 +1226,13 @@ def convert_dec_to_hex(stack):
         stack[0] = stack[0] / 16
         stack = split_number(stack)
         result = int(stack[0] * 16)
-        if stack[0] == 0 and stack[1] == 0: 
+        if stack[0] == 0 and stack[1] == 0:
             break
         result = hex_dict[str(result)]
         hex_value += result
         stack.pop(0)
         cnt += 1
-    
+
     # a decimal value of zero, won't be caught by the while loop, so...
     if cnt == 0:
         hex_value = '0'
@@ -1278,13 +1277,13 @@ def define_constant(stack, user_dict):
 
 (1) Numerical constants. These are numbers.
 
-    Example: 
+    Example:
         ultimate:  42.0  life's meaning
 
 (2) Expressions. These are strings.
 
     Example (1):
-        (150 140 -) 2 / 140 + 
+        (150 140 -) 2 / 140 +
 
     Example (2):
         (y: x: - ) 2 / 140 +
@@ -1292,7 +1291,7 @@ def define_constant(stack, user_dict):
 The latter example show use of register names in an expression. Here is how to construct these types of expression. Let's create this expression:
 
     (x: y: +) y: *
-    
+
 NOTE: Keep in mind that during evaluation of the expression, the stack contents change as operations are executed. We'll see this happen in this example...
 
 -- Let's put the following values on the stack.
@@ -1313,10 +1312,10 @@ NOTE: Keep in mind that during evaluation of the expression, the stack contents 
     y:          0.0000
     x:         28.0000
 
-NOTES: 
+NOTES:
 (1) The non-obvious point is that, in an expression, the registers (e.g., "x:") are not variable names, but refer to the stack at THAT point in the expression's execution.
 
-(2) Register names can save a lot of time when repeating simple calculations, such as getting the mid-point between two values. Create and save the following expression, say as "mid". 
+(2) Register names can save a lot of time when repeating simple calculations, such as getting the mid-point between two values. Create and save the following expression, say as "mid".
 
     y: x: s dup rd - 2 / s d +
 
@@ -1336,12 +1335,12 @@ An easy way to get an expression: use the command line to do what you need, then
     mid         -- valid
 
 (4) Memory registers can act as variables, and may be better suited for some complicated expressions. See help for M+, M-, MR, MD, and ML.
-    
+
 Type:
-    
+
     usercon
 
-to list the current user-defined constants. 
+to list the current user-defined constants.
     """
     try:
         with open("constants.json", 'r') as file:
@@ -1363,7 +1362,7 @@ to list the current user-defined constants.
             print('   If you need information on expressions,\n   press <enter> then:\n\nh user\n')
             print()
             name = input("Name of constant/conversion: ")
-            
+
             # if no name was entered, leave this function
             if not name:
                 break
@@ -1406,7 +1405,7 @@ to list the current user-defined constants.
                             value = float(value.replace(',', ''))
                         except ValueError:
                             pass
-                
+
             # if you enter no name and no value, then exit...
             if not name and value == '':
                 break
@@ -1458,7 +1457,7 @@ to list the current user-defined constants.
 
 def drop(stack):
     """
-    Drop the last element off the stack.\n\nExample: 
+    Drop the last element off the stack.\n\nExample:
     4 3 d --> x: 4
     """
     stack.pop(0)
@@ -1468,12 +1467,12 @@ def drop(stack):
 def dup(stack):
     """
     Duplicate the last stack element. <TEENR> with nothing else on the command line will also duplicate x.\n\n
-        
+
 Examples (1):
     4 dup --> x: 4  y: 4
-    
+
 Example (2):
-    4 <enter> <enter> --> y: 4  x: 4 
+    4 <enter> <enter> --> y: 4  x: 4
     """
     x = stack[0]
     stack.insert(0, x)
@@ -1483,12 +1482,12 @@ Example (2):
 def get_lastx(stack, lastx_list):
     """
     Put the last x: value on the stack.
-    
+
 Examples:
     4 5 ^ --> x: 1024
-    
+
     lastx --> y: 1024  x: 5
-    
+
     3 4 lastx --> z: 3  y: 4  x: 4 (duplicates x:)
     """
     stack.insert(0, lastx_list[0])
@@ -1505,12 +1504,12 @@ def list_stack(stack):
     # stack must always have at least 4 elements
     while len(stack) < 4:
         stack.insert(len(stack), 0.0)
-        
+
     # add blank stack_names, as needed
     r = '  '
     for i in range(len(stack) - 4):
         stack_names.append(r)
-    
+
     print('='*15, ' CURRENT STACK ', '='*15)
     for register in range(len(stack)-1, -1, -1):
         # get the number of decimals from {settings}
@@ -1563,8 +1562,8 @@ def roll_up(stack):
     stack[0], stack[1], stack[2], stack[3] = t, x, y, z
 
     return stack
-    
-    
+
+
 def roll_down(stack):
     """
     Roll the stack down. t:-->z:, z:-->y:, y:-->x:, and x: wraps around to become t:.
@@ -1628,7 +1627,7 @@ def stats(stack):
         else:
             break
     print()
-    
+
     # get the stats: count, mean, median, min, max, sum; save sd for later
     cnt = len(stack_copy)
     mn = sum(stack_copy)/len(stack_copy)
@@ -1667,14 +1666,14 @@ def stats(stack):
 def swap(stack):
     """
     Swap x: and y: values on the stack.
-    
-Example (1): 
+
+Example (1):
     y: 3  x: 4 swap --> y: 4  x: 3
-    
+
 Example (2):
     y: 4  x: 3 s --> y: 3  x: 4
 
-Note that example (2) uses a shortcut. To list shortcuts, type: 
+Note that example (2) uses a shortcut. To list shortcuts, type:
 
     short
     """
@@ -1685,8 +1684,8 @@ Note that example (2) uses a shortcut. To list shortcuts, type:
 def trim_stack(stack):
     """
     Remove all elements on the stack except x:, y:, z:, t:.
-    
-Note: You can use 
+
+Note: You can use
 
     list
 
@@ -1703,9 +1702,9 @@ def hex_to_rgb(stack, item):
     """
     Convert hex color to rgb.
 
-Example: 
+Example:
     #b31b1b rgb --> z: 179  y: 27  x: 27
-    
+
 NOTE: to detect a hex value, the string you enter must begin with '#'.
     """
     if item[0] == '#':
@@ -1731,7 +1730,7 @@ NOTE: to detect a hex value, the string you enter must begin with '#'.
 def rgb_to_hex(stack):
     """
     Convert rgb color (z:, y:, x:) to hex color.
-    
+
 Example:
     179 27 27 hex --> #b31b1b
 
@@ -1753,7 +1752,7 @@ Example:
 def get_hex_alpha(stack):
     """
     Put a percent alpha value (between 0 and 100) in x:
-    
+
     This operation returns the hex equivalent, reported as a string.
 
 Example:
@@ -1785,10 +1784,10 @@ def list_alpha(stack):
 
 # === COMMON CONVERSIONS ====
 
-def inch(stack):
+def ci(stack):
     """
     Convert cm to inches.\n\nExample:
-        
+
     2.54 inch --> x: 1 (converts 2.54 cm to 1 inch)
     """
     # 1 in = 2.54 cm
@@ -1796,10 +1795,10 @@ def inch(stack):
     return stack
 
 
-def cm(stack):
+def ic(stack):
     """
     Convert inches to cm.\n\nExample:
-        
+
     1.00 cm --> 2.54 (converts 1 inch to 2.54 cm)
     """
     # 1 in = 2.54 cm
@@ -1810,9 +1809,9 @@ def cm(stack):
 def lengths(stack):
     """
     Convert a decimal measurement to a fraction. For example, you can easily determine what is the equivalent measure of 2.25 inches in eighths. Very handy for woodworking.
-    
+
 Example (1)
-    2.25 8 i 
+    2.25 8 i
 
         t:          2.2500
         z:          2.0000
@@ -1825,15 +1824,15 @@ Translation:
 =================================================
 
 Example (2)
-    3.65 32 i 
-    
+    3.65 32 i
+
         t:          3.6500
         z:          3.0000
         y:         20.8000
         x:         32.0000
 
     3.65" equals 3 20.8/32"
-    
+
 =================================================
 
 Example (3)
@@ -1846,7 +1845,7 @@ Example (3)
 
     3.25" equals 3 16/64"
     """
-    
+
     # Convert a decimal measurement to 1/8", 1/16", 1/32", or 1/64"
     # Enter: X.XX >> 8, 16, 32, or 64 >> i
 
@@ -1868,9 +1867,9 @@ Example (3)
 def ftoc(stack):
     """
     Convert temperature from F to C.
-    
+
 Example:
-        
+
     212 fc --> x: 100
     """
     # e.g.: enter 32 ftco and return 0
@@ -1884,9 +1883,9 @@ Example:
 def ctof(stack):
     """
     Convert temperature from C to F.
-    
+
 Example:
-        
+
     100 cf --> x: 212
     """
     # e.g.: enter 0C ctof and return 32F
@@ -1900,7 +1899,7 @@ Example:
 def go(stack):
     """
     Convert weight from grams to ounces.\n\nExample:
-        
+
     453.5924 go --> x: 16
     """
     # e.g.: enter 16g and return 453.59237
@@ -1918,16 +1917,58 @@ def og(stack):
     stack[0] = stack[0] * 453.59237 / 16.0
     return stack
 
+def kp(stack):
+    """
+    Convert kilograms to pounds.\n\nExxample:
+
+    1 kp --> 2.204_622_621_8 pounds
+    """
+    # e.g: enter 1 kp and return 2.2046
+    stack[0] = stack[0] * 2.204_622_621_8
+    return stack
+
+def pk(stack):
+    """
+    Convert pounds to kilograms.\n\nExxample:
+
+    1 pound --> 2.204_622_621_8 pounds
+    """
+    # e.g: enter 1 pound and return 0.4536
+    stack[0] = stack[0] / 2.204_622_621_8
+    return stack
+
+
+def km(stack):
+    """
+    Convert kilometers to miles.\n\nExxample:
+
+    1 kilometer --> 0.621_371_192_24 miles
+    """
+    # e.g: enter 1 kilometer and return 0.6214
+    stack[0] = stack[0] * 0.621_371_192_24
+    return stack
+
+
+def mk(stack):
+    """
+    Convert miles to kilometers.\n\nExxample:
+
+    1 mile --> 1.609344 kilometer
+    """
+    # e.g: enter 1 mile and return 1.6093
+    stack[0] = stack[0] / 0.621_371_192_24
+    return stack
+
 
 # MEMORY STACK FUNCTIONS ====================
 
 def mem_add(stack, mem):
     """
-    Add x: to the y: memory register. 
-    
-Example: 
-    1 453 
-    M+ 
+    Add x: to the y: memory register.
+
+Example:
+    1 453
+    M+
 
 adds 453 to the current value of the #1 memory register.
 
@@ -1970,11 +2011,11 @@ to inspect (list) the memory registers.
 def mem_sub(stack, mem):
     """
     Subtract x: from the y: memory register.
-    
+
 Example:
-    3 12 
-    M- 
-    
+    3 12
+    M-
+
 Subtracts 12 from the current value of the #3 memory register.
 
 Type:
@@ -2016,10 +2057,10 @@ to inspect (list) the memory registers.
 def mem_recall(stack, mem):
     """
     Puts the value in the x: memory register on the stack.
-    
-Example: 
+
+Example:
     12 MR
-    
+
 puts the value of the #12 memory register on the stack.
 
 Type:
@@ -2051,7 +2092,7 @@ def mem_list(stack, mem):
     """
     List all elements of memory register.
     """
-    # dictionaries are not sorted, so temporarily 
+    # dictionaries are not sorted, so temporarily
     # sort {mem} by key (register number)
     sorted_mem = dict(sorted(mem.items()))
 
@@ -2115,7 +2156,7 @@ to inspect (list) the memory registers.
         if register2 in mem:
             stack.pop(0)
             del mem[register2]
-        
+
     else:
         print('Are you sure you want to delete')
         confirm = input('register ' + str(register1) + ' to register ' + str(register2) + '? (Y/N) ')
@@ -2130,7 +2171,7 @@ to inspect (list) the memory registers.
                     del mem[i]
             stack.pop(0)
             stack.pop(0)
-        
+
     return stack, mem
 
 
@@ -2143,7 +2184,7 @@ def help(stack):
 
 You can also type:
 
-    h [command] 
+    h [command]
 
 to get information about a specific command.
 """
@@ -2165,26 +2206,26 @@ to get information about a specific command. Example:
     print('\n'.join([fold(txt) for txt in txt.splitlines()]))
 
     return stack
-    
+
 
 def basics(stack):
     """
     The basics of RPN.
-    
+
 Type:
 
     basics
-    
+
 to display an introduction to how RPN calculators work.
     """
     txt = """
 ============= HELP: RPN BASICS ==============
 An RPN calculator has no "equals" < = > key. Rather, numbers are placed on a "stack" and then an operation is invoked to act on the stack values. The result of the operation is placed back on the stack.
-            
+
 EXAMPLE:
-                
-Type: 
-    
+
+Type:
+
     3 <enter>      4 <enter>
 
 Result:
@@ -2193,21 +2234,21 @@ Result:
     z:          0.0000
     y:          3.0000
     x:          4.0000
-            
+
 When 3 is entered, it goes to the x: register. Then, when 4 is entered, 3 is moved to the y: register and 4 is placed in the x: register. Now, you can do anything you want with those two numbers. Let's add them.
-            
-Type: 
+
+Type:
 
     + <enter>
-            
+
 The x: and y: registers are added, and the result (7) appears on the stack.
-        
+
 The speed of RPN is realized when entering expressions:
-            
-Type: 
+
+Type:
 
     3 4 dup + +
-            
+
 ada parses the whole expression at once. After "dup", the stack looks like this:
 
     t:          0.0000
@@ -2215,7 +2256,7 @@ ada parses the whole expression at once. After "dup", the stack looks like this:
     y:          4.0000
     x:          4.0000
 
-The first + adds y: and x: 
+The first + adds y: and x:
 
     t:          0.0000
     z:          0.0000
@@ -2229,15 +2270,15 @@ The second + adds y: and the new x:
     y:          0.0000
     x:         11.0000
 
-You can also group items using parentheses (nested groups are allowed!). 
+You can also group items using parentheses (nested groups are allowed!).
 
-Example: 
+Example:
 
-    (145 5+)(111 20+) * 
+    (145 5+)(111 20+) *
 
-Parentheses make sure that operations are applied as you intend. The result of the first group is placed on the stack in x:. Then it is moved to y: when the second group is executed and placed in x:. Then the multiplication operator multiplies x: and y:. This type of operation is where the real power of RPN is realized. 
+Parentheses make sure that operations are applied as you intend. The result of the first group is placed on the stack in x:. Then it is moved to y: when the second group is executed and placed in x:. Then the multiplication operator multiplies x: and y:. This type of operation is where the real power of RPN is realized.
 ============================================="""
-        
+
     print('\n'.join([fold(txt) for txt in txt.splitlines()]))
 
     return stack
@@ -2246,14 +2287,14 @@ Parentheses make sure that operations are applied as you intend. The result of t
 def advanced(stack):
     """
     Advanced help: how to use this calculator: ada.
-    
+
 Type:
 
     advanced
-    
+
 for information about advanced use of RPN and, in particular, this command-line calculator.
     """
-    txt = """ 
+    txt = """
 =========== HELP: HOW TO USE ada ============
 You can get a list of available operations  by typing:
 
@@ -2281,7 +2322,7 @@ We want to drop 3, swap 4 and 7, then get the square root of the x: register (4)
 
 Except for functions related to the memory registers (M+, MR, etc.), commands/operators use lower case only. Not having to use the <shift> key increases speed of entry.
 
-ada keeps track of expressions you use, and these can be displayed by typing: 
+ada keeps track of expressions you use, and these can be displayed by typing:
 
     tape
 
@@ -2317,7 +2358,7 @@ def fold(txt):
 def help_fxn(stack, item):
     """
     Help for a single command.
-    
+
 Example:
 
     h sqrt --> Find the square root of x.
@@ -2347,7 +2388,7 @@ Example:
     txt = func[f[0].__name__]
     print('\n'.join([fold(txt) for txt in txt.splitlines()]))
     print('='*45)
-    
+
     return stack
 
 def get_revision_number():
@@ -2395,9 +2436,9 @@ if __name__ == '__main__':
         # if config.json does not exist, create it
         with open('config.json', 'w+') as file:
             file.write(json.dumps(settings, ensure_ascii=False))
-        
+
     # menu gets printed on screen 4 items to a line
-    menu = ( 
+    menu = (
         '<d>rop       ', '<s>wap       ', '<r>oll <u>p  ', '<r>oll<d>own',
         '<n>eg        ', '<c>lear      ', '<usercon>stants', '',
         '<set>tings   ', '<index>     ', '<h> [...]    ', '<q>uit       '
@@ -2434,13 +2475,17 @@ if __name__ == '__main__':
         "bindec": (convert_bin_to_dec, 'Convert x: from binary to decimal.'),
         "dechex": (convert_dec_to_hex, 'Convert x: from decimal to hex.'),
         "hexdec": (convert_hex_to_dec, 'Convert x: from hex to decimal.'),
-        'cm': (cm, 'Convert inches to centimeters.'),
-        'inch': (inch, 'Convert centimeters to inches.'),
+        'ic': (ic, 'Convert inches to centimeters.'),
+        'ci': (ci, 'Convert centimeters to inches.'),
         'cf': (ctof, 'Convert centigrade to Fahrenheit.'),
         'fc': (ftoc, 'Convert Fahrenheit to centigrade.'),
         'go': (go, 'Convert weight from grams to ounces.'),
         'og': (og, 'Convert weight from ounces to grams.'),
         'i': (lengths, 'Convert decimal measure to fraction.'),
+        'kp': (kp, 'Convert kilograms to pounds.'),
+        'pk': (pk, 'Convert pounds to kilograms.'),
+        'km': (km, 'Convert kilometers to miles.'),
+        'mk': (mk, 'Convert miles to kilometers.')
     }
 
     # operations that require both x: and y: (stack[0] and stack[1])
@@ -2513,8 +2558,6 @@ if __name__ == '__main__':
         "golden_ratio": (1.618033988749895, 'golden ratio'),
         "gram": (0.035_273_961_95, "ounce"),
         "inches_hg": (25.399_999_705, "mmHg"),
-        "kilogram": (2.204_622_621_8, "pound"),
-        "kilometer": (0.621_371_192_24, 'mile'), 
         "light":  (299_792_458, "speed of light, m/s"),
         "mmhg": (0.535_240_171_45, "inches of water"),
         "parsec": (19_173_510_995_000, 'mile'),
@@ -2527,33 +2570,33 @@ if __name__ == '__main__':
         'n': (negate, 'Negative of x:'),
         'q': ('', 'Quit.'),
         'r': (round_y, 'round y by x:'),
-        'rd': (roll_down, 'Roll the stack down.'),  
-        'ru': (roll_up, 'Roll the stack up.'),  
+        'rd': (roll_down, 'Roll the stack down.'),
+        'ru': (roll_up, 'Roll the stack up.'),
         's': (swap, 'Swap x: and y: values on the stack.'),
             }
 
     # keys are "percent transparency" and values are "alpha code" for hex colors; 0% is transparent; 100% is no transparency
     alpha = {
-        '100': 'FF',  
-        '95': 'F2',  
-        '90': 'E6',  
-        '85': 'D9',  
-        '80': 'CC',  
-        '75': 'BF',  
-        '70': 'B3',  
-        '65': 'A6',  
-        '60': '99',  
+        '100': 'FF',
+        '95': 'F2',
+        '90': 'E6',
+        '85': 'D9',
+        '80': 'CC',
+        '75': 'BF',
+        '70': 'B3',
+        '65': 'A6',
+        '60': '99',
         '55': '8C',
-        '50': '80',  
-        '45': '73',  
-        '40': '66',  
-        '35': '59',  
-        '30': '4D',  
-        '25': '40',  
-        '20': '33',  
-        '15': '26',  
-        '10': '1A',  
-        '5': '0D',  
+        '50': '80',
+        '45': '73',
+        '40': '66',
+        '35': '59',
+        '30': '4D',
+        '25': '40',
+        '20': '33',
+        '15': '26',
+        '10': '1A',
+        '5': '0D',
         '0': '00'
         }
 
