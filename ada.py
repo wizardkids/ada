@@ -302,7 +302,7 @@ def parse_entry(stack, entered_value):
                     except IndexError:
                         break
 
-            # if it's a single-character math operator (all of {op2]
+            # if it's a single-character math operator (all of {op2] 
             # and only '!' in {op1})
             elif entered_value[ndx] in op2.keys() or entered_value[ndx] == '!':
                 if s == '-':
@@ -327,7 +327,7 @@ def parse_entry(stack, entered_value):
         if r in entered_value:
             stack[ndx] = 0.0
 
-    # convert numbers to floats and strip out empty elements  and punctuation (e.g., commas, as in, comma delimited number sequences)
+    # convert numbers to floats and strip out empty elements  and punctuation(e.g., commas, as in, comma delimited number sequences)
     for i in data:
         if i in [',', ';', ':']:
             i = ' '
@@ -803,7 +803,7 @@ def calculator_settings(settings):
             elif k == 'show_tape':
                 print('     Show tape: ', v)
             # elif k == 'show_tips':
-            #     print('  Restart tips: ', v)
+            #     print('  Restart tips: ', v) 
             else:
                 pass
         print('='*45)
@@ -1250,9 +1250,9 @@ def convert_hex_to_dec(stack, hex_value='not_hex'):
     Example:
     0xA --> x: 8
     """
-    # -- RPN() handles this directly without going to process_item()
-    # -- entering '0x' is sufficient to convert hex to decimal
-    # -- so entering 'hexdec' actually does nothing
+    # ! RPN() handles this directly without going to process_item()
+    # ! entering '0x' is sufficient to convert hex to decimal
+    # ! so entering 'hexdec' actually does nothing
     # SOURCE:
     # https://owlcation.com/stem/Convert-Hex-to-Decimal
     if hex_value == 'not_hex':
@@ -1790,7 +1790,7 @@ def list_alpha(stack):
 
 # === COMMON CONVERSIONS ====
 
-def inch(stack):
+def ci(stack):
     """
     Convert cm to inches.\n\nExample:
 
@@ -1801,7 +1801,7 @@ def inch(stack):
     return stack
 
 
-def cm(stack):
+def ic(stack):
     """
     Convert inches to cm.\n\nExample:
 
@@ -1921,6 +1921,48 @@ def og(stack):
     """
     # e.g.: enter 16g and return 453.59237
     stack[0] = stack[0] * 453.59237 / 16.0
+    return stack
+
+def kp(stack):
+    """
+    Convert kilograms to pounds.\n\nExxample:
+
+    1 kp --> 2.204_622_621_8 pounds
+    """
+    # e.g: enter 1 kp and return 2.2046
+    stack[0] = stack[0] * 2.204_622_621_8
+    return stack
+
+def pk(stack):
+    """
+    Convert pounds to kilograms.\n\nExxample:
+
+    1 pound --> 2.204_622_621_8 pounds
+    """
+    # e.g: enter 1 pound and return 0.4536
+    stack[0] = stack[0] / 2.204_622_621_8
+    return stack
+
+
+def km(stack):
+    """
+    Convert kilometers to miles.\n\nExxample:
+
+    1 kilometer --> 0.621_371_192_24 miles
+    """
+    # e.g: enter 1 kilometer and return 0.6214
+    stack[0] = stack[0] * 0.621_371_192_24
+    return stack
+
+
+def mk(stack):
+    """
+    Convert miles to kilometers.\n\nExxample:
+
+    1 mile --> 1.609344 kilometer
+    """
+    # e.g: enter 1 mile and return 1.6093
+    stack[0] = stack[0] / 0.621_371_192_24
     return stack
 
 
@@ -2056,7 +2098,7 @@ def mem_list(stack, mem):
     """
     List all elements of memory register.
     """
-    # dictionaries are not sorted, so temporarily
+    # dictionaries are not sorted, so temporarily 
     # sort {mem} by key (register number)
     sorted_mem = dict(sorted(mem.items()))
 
@@ -2440,13 +2482,17 @@ if __name__ == '__main__':
         "bindec": (convert_bin_to_dec, 'Convert x: from binary to decimal.'),
         "dechex": (convert_dec_to_hex, 'Convert x: from decimal to hex.'),
         "hexdec": (convert_hex_to_dec, 'Convert x: from hex to decimal.'),
-        'cm': (cm, 'Convert inches to centimeters.'),
-        'inch': (inch, 'Convert centimeters to inches.'),
+        'ic': (ic, 'Convert inches to centimeters.'),
+        'ci': (ci, 'Convert centimeters to inches.'),
         'cf': (ctof, 'Convert centigrade to Fahrenheit.'),
         'fc': (ftoc, 'Convert Fahrenheit to centigrade.'),
         'go': (go, 'Convert weight from grams to ounces.'),
         'og': (og, 'Convert weight from ounces to grams.'),
         'i': (lengths, 'Convert decimal measure to fraction.'),
+        'kp': (kp, 'Convert kilograms to pounds.'),
+        'pk': (pk, 'Convert pounds to kilograms.'),
+        'km': (km, 'Convert kilometers to miles.'),
+        'mk': (mk, 'Convert miles to kilometers.')
     }
 
     # operations that require both x: and y: (stack[0] and stack[1])
@@ -2519,8 +2565,6 @@ if __name__ == '__main__':
         "golden_ratio": (1.618033988749895, 'golden ratio'),
         "gram": (0.035_273_961_95, "ounce"),
         "inches_hg": (25.399_999_705, "mmHg"),
-        "kilogram": (2.204_622_621_8, "pound"),
-        "kilometer": (0.621_371_192_24, 'mile'),
         "light":  (299_792_458, "speed of light, m/s"),
         "mmhg": (0.535_240_171_45, "inches of water"),
         "parsec": (19_173_510_995_000, 'mile'),
@@ -2575,5 +2619,5 @@ if __name__ == '__main__':
 
     stack = RPN(stack, user_dict, lastx_list, mem, settings, tape)
 
-    # the following line is for the developer only
+    # the following line if for the developer only
     # stack = print_all_functions(stack, user_dict)
