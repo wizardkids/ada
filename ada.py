@@ -6,23 +6,6 @@ Command line RPN calculator that performs a variety of common functions.
 
 """
 
-# version_num is in "if __name__ == '__main__':"
-# ? -- versioning: x.y z
-# ?    Where:
-# ?        x = main version number
-# ?        y = feature number, 0-9. Increase this number if the change contains new features with or without bug fixes.
-# ?        z = revision number determined by get_revision_number()
-
-# ! Best info on GIT branching strategy:
-    # ? https://nvie.com/posts/a-successful-git-branching-model/
-"""
-MANAGING A MERGE TO DEVELOP:
-$ git checkout develop
-$ git merge --no-ff features
-$ git push origin develop
-"""
-
-
 import json
 import math
 import operator
@@ -546,7 +529,7 @@ Note: This list does not include user-defined constants. That list is accessed b
     usercon
     """
     # print all the keys, values in {constants}
-    txt, line_width = ' CONSTANTS & CONVERSIONS ', 56
+    txt, line_width = ' CONSTANTS & UNCOMMON CONVERSIONS ', 56
     ctr1 = math.floor((line_width - len(txt)) / 2)
     ctr2 = math.ceil((line_width - len(txt)) / 2)
     print('='*ctr1, txt, '='*ctr2, sep='')
@@ -2410,7 +2393,9 @@ def get_revision_number():
 
 if __name__ == '__main__':
 
-    version_num = '2.4 rev??'
+    # get_revision_number()
+
+    version_num = '2.4 rev 811'
 
     print('ada ' + version_num[0:3] +  ' - an RPN calculator')
 
@@ -2522,7 +2507,7 @@ if __name__ == '__main__':
         "advanced": (advanced, 'Advanced help: how to use ada.'),
         "com": (print_commands, "List all commands and math operations."),
         "math": (print_math_ops, "List math operations."),
-        "con": (print_constants, 'List constants and conversions.'),
+        "con": (print_constants, 'List constants.'),
         "short": (print_shortcuts, 'Available shortcut functions.'),
         "       ": ('', ''),
         "   ====": ('', '==== MEMORY REGISTERS =================='),
