@@ -302,7 +302,7 @@ def parse_entry(stack, entered_value):
                     except IndexError:
                         break
 
-            # if it's a single-character math operator (all of {op2] 
+            # if it's a single-character math operator (all of {op2]
             # and only '!' in {op1})
             elif entered_value[ndx] in op2.keys() or entered_value[ndx] == '!':
                 if s == '-':
@@ -529,7 +529,7 @@ Note: This list does not include user-defined constants. That list is accessed b
     usercon
     """
     # print all the keys, values in {constants}
-    txt, line_width = ' CONSTANTS & CONVERSIONS ', 56
+    txt, line_width = ' CONSTANTS & UNCOMMON CONVERSIONS ', 56
     ctr1 = math.floor((line_width - len(txt)) / 2)
     ctr2 = math.ceil((line_width - len(txt)) / 2)
     print('='*ctr1, txt, '='*ctr2, sep='')
@@ -803,7 +803,7 @@ def calculator_settings(settings):
             elif k == 'show_tape':
                 print('     Show tape: ', v)
             # elif k == 'show_tips':
-            #     print('  Restart tips: ', v) 
+            #     print('  Restart tips: ', v)
             else:
                 pass
         print('='*45)
@@ -2098,7 +2098,7 @@ def mem_list(stack, mem):
     """
     List all elements of memory register.
     """
-    # dictionaries are not sorted, so temporarily 
+    # dictionaries are not sorted, so temporarily
     # sort {mem} by key (register number)
     sorted_mem = dict(sorted(mem.items()))
 
@@ -2407,19 +2407,20 @@ def get_revision_number():
     tday = datetime.today()
     revision_delta = datetime.today() - start_date
 
-    # print("\nREVISION NUMBER:", revision_delta.days)
-    # print('This is the number of days since 2/18/2018,\n', 'the date that the first version of this\n', 'calculator was launched.\n\n', sep='')
+    print("\nREVISION NUMBER:", revision_delta.days)
+    print('This is the number of days since 2/18/2018,\n', 'the date that the first version of this\n', 'calculator was launched.\n\n', sep='')
     return None
 
 
 # GLOBAL FUNCTIONS AND RUN RPN() ====================
 
 if __name__ == '__main__':
-    get_revision_number()
 
-    version_num = 'v2.4 rev476'
+    # get_revision_number()
 
-    print('ada ' + version_num[0:4] +  ' - an RPN calculator')
+    version_num = '2.4 rev 811'
+
+    print('ada ' + version_num[0:3] +  ' - an RPN calculator')
 
     # initialize the x, y, z, and t registers, and other global variables
     stack, entered_value = [0.0], 0.0
@@ -2529,7 +2530,7 @@ if __name__ == '__main__':
         "advanced": (advanced, 'Advanced help: how to use ada.'),
         "com": (print_commands, "List all commands and math operations."),
         "math": (print_math_ops, "List math operations."),
-        "con": (print_constants, 'List constants and conversions.'),
+        "con": (print_constants, 'List constants.'),
         "short": (print_shortcuts, 'Available shortcut functions.'),
         "       ": ('', ''),
         "   ====": ('', '==== MEMORY REGISTERS =================='),
