@@ -2621,6 +2621,6 @@ if __name__ == '__main__':
     stack = RPN(stack, user_dict, lastx_list, mem, settings, tape)
 
     # the following line if for the developer only
-    # stack = print_all_functions(stack, user_dict)
 
-    # added to master
+    # this line was added on 2020-05-09 11:42 AM
+    # this line was subtracted: stack = print_all_functions(stack, user_dict)
